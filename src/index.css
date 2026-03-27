@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 200 20% 8%;
+    --foreground: 180 10% 90%;
+
+    --card: 200 18% 12%;
+    --card-foreground: 180 10% 90%;
+
+    --popover: 200 18% 12%;
+    --popover-foreground: 180 10% 90%;
+
+    --primary: 168 60% 45%;
+    --primary-foreground: 200 20% 8%;
+
+    --secondary: 200 15% 18%;
+    --secondary-foreground: 180 10% 85%;
+
+    --muted: 200 12% 16%;
+    --muted-foreground: 200 10% 55%;
+
+    --accent: 195 70% 42%;
+    --accent-foreground: 200 20% 95%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 15% 20%;
+    --input: 200 15% 20%;
+    --ring: 168 60% 45%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 200 18% 10%;
+    --sidebar-foreground: 180 10% 85%;
+    --sidebar-primary: 168 60% 45%;
+    --sidebar-primary-foreground: 200 20% 8%;
+    --sidebar-accent: 200 15% 16%;
+    --sidebar-accent-foreground: 180 10% 85%;
+    --sidebar-border: 200 15% 18%;
+    --sidebar-ring: 168 60% 45%;
+
+    /* Custom tokens */
+    --geo-blue: 205 75% 50%;
+    --geo-green: 168 60% 45%;
+    --geo-teal: 180 50% 40%;
+    --geo-amber: 38 90% 55%;
+    --geo-red: 0 70% 55%;
+    --geo-purple: 270 50% 55%;
+    --geo-cyan: 190 80% 50%;
+
+    --glass: 200 18% 12% / 0.85;
+    --glass-border: 200 15% 25% / 0.5;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+  code, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-card/85 backdrop-blur-xl border border-border/50 rounded-xl;
+  }
+  .glass-panel-sm {
+    @apply bg-card/80 backdrop-blur-lg border border-border/40 rounded-lg;
+  }
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(168 60% 45% / 0.15), 0 0 60px hsl(168 60% 45% / 0.05);
+  }
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(205 75% 50% / 0.15);
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(168 60% 55%), hsl(205 75% 55%));
+  }
+  .score-gradient {
+    background: linear-gradient(90deg, hsl(168 60% 45%), hsl(205 75% 50%), hsl(38 90% 55%));
+  }
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background: hsl(200 20% 6%) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.leaflet-control-zoom {
+  border: none !important;
+}
+.leaflet-control-zoom a {
+  background: hsl(200 18% 12% / 0.9) !important;
+  color: hsl(180 10% 85%) !important;
+  border: 1px solid hsl(200 15% 22%) !important;
+  backdrop-filter: blur(12px);
+}
+.leaflet-control-zoom a:hover {
+  background: hsl(200 18% 16%) !important;
+}
+.leaflet-control-attribution {
+  background: hsl(200 18% 10% / 0.8) !important;
+  color: hsl(200 10% 45%) !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: hsl(168 60% 45%) !important;
+}
