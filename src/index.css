@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,56 +6,55 @@
 
 @layer base {
   :root {
-    --background: 40 25% 97%;
-    --foreground: 210 20% 12%;
+    --background: 0 0% 98%;
+    --foreground: 192 18% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 12%;
+    --card-foreground: 192 18% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 12%;
+    --popover-foreground: 192 18% 14%;
 
-    --primary: 162 50% 32%;
+    --primary: 172 40% 22%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 18% 93%;
-    --secondary-foreground: 210 15% 20%;
+    --secondary: 195 14% 92%;
+    --secondary-foreground: 192 15% 18%;
 
-    --muted: 40 12% 89%;
-    --muted-foreground: 210 10% 45%;
+    --muted: 195 10% 88%;
+    --muted-foreground: 200 8% 44%;
 
-    --accent: 195 60% 42%;
+    --accent: 200 42% 38%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 4 72% 50%;
+    --destructive: 6 62% 44%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 82%;
-    --input: 40 15% 82%;
-    --ring: 162 50% 32%;
+    --border: 200 12% 82%;
+    --input: 200 12% 82%;
+    --ring: 172 40% 22%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 40 20% 97%;
-    --sidebar-foreground: 210 15% 20%;
-    --sidebar-primary: 162 50% 32%;
+    --sidebar-background: 195 12% 97%;
+    --sidebar-foreground: 192 15% 18%;
+    --sidebar-primary: 172 40% 22%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 18% 93%;
-    --sidebar-accent-foreground: 210 15% 20%;
-    --sidebar-border: 40 15% 82%;
-    --sidebar-ring: 162 50% 32%;
+    --sidebar-accent: 195 14% 92%;
+    --sidebar-accent-foreground: 192 15% 18%;
+    --sidebar-border: 200 12% 82%;
+    --sidebar-ring: 172 40% 22%;
 
-    /* Custom tokens */
-    --geo-blue: 205 75% 48%;
-    --geo-green: 155 50% 38%;
-    --geo-teal: 178 45% 38%;
-    --geo-amber: 35 90% 50%;
-    --geo-red: 4 72% 50%;
-    --geo-purple: 265 50% 50%;
-    --geo-cyan: 190 70% 45%;
+    --geo-blue: 205 60% 45%;
+    --geo-green: 158 45% 34%;
+    --geo-teal: 175 38% 30%;
+    --geo-amber: 38 80% 48%;
+    --geo-red: 6 62% 44%;
+    --geo-purple: 260 35% 48%;
+    --geo-cyan: 188 55% 40%;
 
-    --glass: 0 0% 100% / 0.9;
-    --glass-border: 40 15% 80% / 0.5;
+    --glass: 0 0% 100% / 0.92;
+    --glass-border: 200 12% 80% / 0.5;
   }
 }
 
@@ -78,48 +77,62 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-white/90 backdrop-blur-xl border border-border/50 rounded-xl shadow-sm;
+    @apply bg-white border border-border/60 rounded-xl shadow-sm;
   }
   .glass-panel-sm {
-    @apply bg-white/85 backdrop-blur-lg border border-border/40 rounded-lg shadow-sm;
+    @apply bg-white border border-border/50 rounded-lg shadow-sm;
   }
   .glow-primary {
-    box-shadow: 0 0 20px hsl(162 50% 32% / 0.12), 0 0 60px hsl(162 50% 32% / 0.04);
+    box-shadow: 0 0 20px hsl(172 40% 22% / 0.1), 0 0 60px hsl(172 40% 22% / 0.03);
   }
   .glow-accent {
-    box-shadow: 0 0 20px hsl(195 60% 42% / 0.12);
+    box-shadow: 0 0 20px hsl(200 42% 38% / 0.1);
   }
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(162 50% 36%), hsl(195 60% 44%));
+    background-image: linear-gradient(135deg, hsl(172 40% 28%), hsl(200 42% 40%));
   }
   .score-gradient {
-    background: linear-gradient(90deg, hsl(162 50% 32%), hsl(205 75% 48%), hsl(35 90% 50%));
+    background: linear-gradient(90deg, hsl(172 40% 22%), hsl(205 60% 45%), hsl(38 80% 48%));
   }
 }
 
 /* Leaflet overrides */
 .leaflet-container {
-  background: hsl(40 25% 95%) !important;
+  background: hsl(0 0% 96%) !important;
   font-family: 'Inter', sans-serif !important;
 }
 .leaflet-control-zoom {
   border: none !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
 }
 .leaflet-control-zoom a {
-  background: hsl(0 0% 100% / 0.92) !important;
-  color: hsl(210 20% 20%) !important;
-  border: 1px solid hsl(40 15% 80%) !important;
-  backdrop-filter: blur(12px);
+  background: hsl(0 0% 100%) !important;
+  color: hsl(192 18% 14%) !important;
+  border: 1px solid hsl(200 12% 82%) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
 }
 .leaflet-control-zoom a:hover {
-  background: hsl(40 18% 95%) !important;
+  background: hsl(195 14% 95%) !important;
 }
 .leaflet-control-attribution {
-  background: hsl(40 20% 97% / 0.85) !important;
-  color: hsl(210 10% 50%) !important;
+  background: hsl(0 0% 98% / 0.9) !important;
+  color: hsl(200 8% 44%) !important;
   font-size: 10px !important;
 }
 .leaflet-control-attribution a {
-  color: hsl(162 50% 32%) !important;
+  color: hsl(172 40% 22%) !important;
+}
+.custom-tooltip {
+  background: white !important;
+  border: 1px solid hsl(200 12% 82%) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.custom-tooltip::before {
+  border-top-color: hsl(200 12% 82%) !important;
 }

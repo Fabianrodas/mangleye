@@ -1,88 +1,87 @@
 import { motion } from "framer-motion";
-import { Database, BrainCircuit, Shield, Droplets, TreePine, Wrench, XCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Map, Layers, Eye, AlertTriangle } from "lucide-react";
 
-const outputs = [
-  { label: "Protect", color: "bg-geo-green/10 text-geo-green border-geo-green/20", icon: Shield },
-  { label: "Restore hydrology", color: "bg-geo-blue/10 text-geo-blue border-geo-blue/20", icon: Droplets },
-  { label: "Revegetate", color: "bg-primary/10 text-primary border-primary/20", icon: TreePine },
-  { label: "Hybrid infrastructure", color: "bg-geo-amber/10 text-geo-amber border-geo-amber/20", icon: Wrench },
-  { label: "Not viable", color: "bg-muted text-muted-foreground border-border", icon: XCircle },
-];
-
-export default function SystemDecision() {
+export default function MapPreview() {
   return (
-    <section className="py-20 px-6">
+    <section className="py-16 px-6">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-2xl md:text-4xl font-bold mb-3">
-            How <span className="text-gradient">Mangleye decides</span>
-          </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto text-sm">
-            Not every zone needs the same action. The system analyzes multiple factors to recommend the right one.
-          </p>
-        </motion.div>
-
-        <div className="flex flex-col md:flex-row items-center gap-5 md:gap-4 justify-center">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="glass-panel p-5 rounded-2xl text-center min-w-[150px]"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
           >
-            <Database size={24} className="text-muted-foreground mx-auto mb-2" />
-            <div className="text-sm font-semibold">Zone data</div>
-            <div className="text-[10px] text-muted-foreground mt-1">Flood · Ecology · Urban pressure</div>
+            <h2 className="text-xl md:text-2xl font-bold mb-3">Explore the live map</h2>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              The interactive map shows flood zones, ecological edges, citizen reports, and priority intervention areas — all in one view.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {[
+                { icon: Layers, text: "Toggle 12 data layers: flooding, mangroves, urban pressure, restoration zones" },
+                { icon: Eye, text: "Select any zone for detailed risk, ecology, and intervention analysis" },
+                { icon: AlertTriangle, text: "Report flooding or add observations directly from the map" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
+                    <item.icon size={14} className="text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">{item.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              to="/map"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              <Map size={15} />
+              Open Live Map
+            </Link>
           </motion.div>
 
+          {/* Map visual placeholder */}
           <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            whileInView={{ opacity: 1, scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="hidden md:block w-10 h-0.5 bg-border"
-          />
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary/20 flex items-center justify-center shadow-lg shadow-primary/5"
+            transition={{ delay: 0.1 }}
+            className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border shadow-lg"
           >
-            <div className="text-center">
-              <BrainCircuit size={24} className="text-primary mx-auto mb-1" />
-              <div className="text-[10px] font-bold text-primary">Analysis</div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            whileInView={{ opacity: 1, scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="hidden md:block w-10 h-0.5 bg-border"
-          />
-
-          <div className="flex flex-col gap-2">
-            {outputs.map((output, i) => (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-geo-green/5" />
+            <div className="absolute inset-0" style={{
+              backgroundImage: `
+                radial-gradient(circle at 30% 40%, hsl(205 60% 45% / 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, hsl(158 45% 34% / 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 30%, hsl(6 62% 44% / 0.08) 0%, transparent 35%)
+              `
+            }} />
+            {/* Simulated zone dots */}
+            {[
+              { x: "30%", y: "40%", color: "bg-destructive", size: "w-3 h-3" },
+              { x: "55%", y: "35%", color: "bg-geo-amber", size: "w-2.5 h-2.5" },
+              { x: "45%", y: "55%", color: "bg-destructive", size: "w-3.5 h-3.5" },
+              { x: "65%", y: "50%", color: "bg-geo-green", size: "w-2 h-2" },
+              { x: "35%", y: "65%", color: "bg-geo-amber", size: "w-2.5 h-2.5" },
+              { x: "70%", y: "35%", color: "bg-primary", size: "w-2 h-2" },
+            ].map((dot, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 + i * 0.08 }}
-                className={`flex items-center gap-2.5 px-4 py-2 rounded-xl border ${output.color} min-w-[180px]`}
-              >
-                <output.icon size={15} />
-                <span className="text-sm font-medium">{output.label}</span>
-              </motion.div>
+                className={`absolute ${dot.size} ${dot.color} rounded-full`}
+                style={{ left: dot.x, top: dot.y }}
+                animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ repeat: Infinity, duration: 2 + i * 0.3, delay: i * 0.2 }}
+              />
             ))}
-          </div>
+            <div className="absolute bottom-3 left-3 right-3 flex gap-2">
+              {["Flood Zones", "Mangroves", "Reports"].map((label, i) => (
+                <div key={i} className="px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-[10px] font-medium text-muted-foreground border border-border/50">
+                  {label}
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

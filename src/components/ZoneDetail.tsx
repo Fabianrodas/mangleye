@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { type Zone } from "@/data/zones";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Sprout, Users, Mountain, Maximize2, X, Droplets, MapPin, BrainCircuit, TreePine, CheckCircle2, Circle, ArrowRight, Shield, Eye, Wrench, Zap, MessageSquare } from "lucide-react";
+import { AlertTriangle, Sprout, Users, Maximize2, X, Droplets, BrainCircuit, TreePine, CheckCircle2, ArrowRight, Shield, Eye, Wrench, Zap, MessageSquare, Camera, ThumbsUp, MapPin } from "lucide-react";
 import ZoneBadge from "./ZoneBadge";
 import type { RiskLevel } from "@/data/zones";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ interface ZoneDetailProps {
 }
 
 const LevelPill = ({ level }: { level: RiskLevel }) => {
-  const cls = level === "High" ? "bg-geo-red/15 text-geo-red" : level === "Medium" ? "bg-geo-amber/15 text-geo-amber" : "bg-geo-green/15 text-geo-green";
+  const cls = level === "High" ? "bg-destructive/12 text-destructive" : level === "Medium" ? "bg-geo-amber/12 text-geo-amber" : "bg-geo-green/12 text-geo-green";
   return <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${cls}`}>{level}</span>;
 };
 
@@ -20,7 +20,7 @@ const ScoreBar = ({ label, value, max }: { label: string; value: number; max: nu
   const pct = (value / max) * 100;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[11px] text-muted-foreground w-[130px] shrink-0 truncate">{label}</span>
+      <span className="text-[11px] text-muted-foreground w-[120px] shrink-0 truncate">{label}</span>
       <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
         <motion.div className="h-full rounded-full bg-primary" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.5 }} />
       </div>
@@ -46,16 +46,16 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
       {zone && (
         <motion.div
           key={zone.id}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, y: 15 }}
+          transition={{ duration: 0.25 }}
           className="space-y-3"
         >
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-base font-bold leading-tight">{zone.name}</h2>
+              <h2 className="text-sm font-bold leading-tight">{zone.name}</h2>
               <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
                 <span className="px-1.5 py-0.5 rounded bg-secondary text-[9px] font-semibold uppercase">{zone.zoneType}</span>
                 <span className="flex items-center gap-0.5"><Maximize2 size={9} />{zone.area}</span>
@@ -70,13 +70,13 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
             </button>
           </div>
 
-          {/* Priority Score - always visible */}
-          <div className="glass-panel-sm p-3 flex items-center gap-3">
-            <div className="relative w-12 h-12 shrink-0">
+          {/* Priority Score */}
+          <div className="p-3 rounded-lg bg-secondary/40 flex items-center gap-3">
+            <div className="relative w-11 h-11 shrink-0">
               <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(45 15% 88%)" strokeWidth="3" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(200 12% 88%)" strokeWidth="3" />
                 <motion.path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none"
-                  stroke={zone.priorityScore >= 85 ? "hsl(0,70%,55%)" : zone.priorityScore >= 75 ? "hsl(38,90%,55%)" : "hsl(168,60%,45%)"}
+                  stroke={zone.priorityScore >= 85 ? "hsl(6,62%,44%)" : zone.priorityScore >= 75 ? "hsl(38,80%,48%)" : "hsl(172,40%,28%)"}
                   strokeWidth="3" strokeLinecap="round"
                   initial={{ strokeDasharray: "0, 100" }}
                   animate={{ strokeDasharray: `${zone.priorityScore}, 100` }}
@@ -87,7 +87,7 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
             </div>
             <div className="flex-1">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Priority Score</div>
-              <div className="flex items-center gap-1 mt-0.5">
+              <div className="flex items-center gap-1.5 mt-0.5">
                 <Droplets size={10} className="text-muted-foreground" />
                 <span className="text-[10px] text-muted-foreground">Flood:</span>
                 <LevelPill level={zone.floodLevel} />
@@ -99,17 +99,17 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
           <div className="flex gap-2">
             <Link
               to="/report/flood"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-destructive/10 text-destructive text-xs font-semibold rounded-lg hover:bg-destructive/15 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-destructive text-white text-xs font-bold rounded-lg hover:bg-destructive/90 transition-colors"
             >
               <AlertTriangle size={12} />
-              Report Flood
+              Report Here
             </Link>
             <Link
               to="/report/ecological"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-geo-green/10 text-geo-green text-xs font-semibold rounded-lg hover:bg-geo-green/15 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-geo-green/10 text-geo-green text-xs font-bold rounded-lg hover:bg-geo-green/15 transition-colors"
             >
               <TreePine size={12} />
-              Observation
+              Add Observation
             </Link>
           </div>
 
@@ -147,22 +147,22 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
 function OverviewTab({ zone }: { zone: Zone }) {
   return (
     <div className="space-y-3">
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Score Factors</div>
         <div className="space-y-1.5">
           {zone.scoreFactors.map(f => <ScoreBar key={f.label} {...f} />)}
         </div>
       </div>
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="flex items-center gap-1.5 mb-2">
-          <Zap size={12} className="text-primary" />
+          <Zap size={11} className="text-primary" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Why This Zone?</span>
         </div>
         <div className="space-y-1">
           {zone.whyPrioritized.map((reason, i) => (
             <div key={i} className="flex items-start gap-2 text-[11px]">
               <span className="text-primary mt-0.5 shrink-0">•</span>
-              <span className="text-secondary-foreground">{reason}</span>
+              <span className="text-muted-foreground">{reason}</span>
             </div>
           ))}
         </div>
@@ -175,60 +175,41 @@ function OverviewTab({ zone }: { zone: Zone }) {
 function RiskTab({ zone }: { zone: Zone }) {
   return (
     <div className="space-y-3">
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-destructive/15 bg-destructive/3">
         <div className="flex items-center gap-1.5 mb-2">
-          <AlertTriangle size={12} className="text-geo-red" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-red">Risk Assessment</span>
+          <AlertTriangle size={11} className="text-destructive" />
+          <span className="text-[10px] font-semibold uppercase text-destructive">Risk Assessment</span>
           <div className="ml-auto"><LevelPill level={zone.floodLevel} /></div>
         </div>
-        <p className="text-[12px] leading-relaxed text-secondary-foreground mb-2">{zone.risk}</p>
+        <p className="text-[12px] leading-relaxed text-muted-foreground mb-2">{zone.risk}</p>
         <div className="grid grid-cols-2 gap-1.5">
           {zone.riskIndicators.map(ind => (
-            <div key={ind.label} className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
+            <div key={ind.label} className="flex items-center justify-between p-1.5 rounded bg-white/80">
               <span className="text-[10px] text-muted-foreground">{ind.label}</span>
               <LevelPill level={ind.level} />
             </div>
           ))}
         </div>
       </div>
-      <div className="glass-panel-sm p-3">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Permeability & Surface</div>
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
+        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">Permeability</div>
         <div className="grid grid-cols-2 gap-1.5 mb-2">
-          <div className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
-            <span className="text-[10px] text-muted-foreground">Permeability</span>
-            <LevelPill level={zone.permeability.permeabilityLevel} />
-          </div>
-          <div className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
-            <span className="text-[10px] text-muted-foreground">Sealing</span>
-            <LevelPill level={zone.permeability.sealingLevel} />
-          </div>
-          <div className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
-            <span className="text-[10px] text-muted-foreground">Urban Cover</span>
-            <LevelPill level={zone.permeability.urbanCoverIntensity} />
-          </div>
+          {[
+            { label: "Permeability", level: zone.permeability.permeabilityLevel },
+            { label: "Sealing", level: zone.permeability.sealingLevel },
+            { label: "Urban Cover", level: zone.permeability.urbanCoverIntensity },
+          ].map(m => (
+            <div key={m.label} className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
+              <span className="text-[10px] text-muted-foreground">{m.label}</span>
+              <LevelPill level={m.level} />
+            </div>
+          ))}
           <div className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
             <span className="text-[10px] text-muted-foreground">Imperviousness</span>
             <span className="text-[10px] font-mono font-bold">{zone.permeability.imperviousnessEstimate}</span>
           </div>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">{zone.permeability.description}</p>
-      </div>
-      <div className="glass-panel-sm p-3">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Viability Assessment</div>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: "Urban Urgency", level: zone.viability.urbanUrgency },
-            { label: "Ecological Viability", level: zone.viability.ecologicalViability },
-            { label: "Social Complexity", level: zone.viability.socialComplexity },
-            { label: "Implementation", level: zone.viability.implementationFeasibility },
-          ].map(v => (
-            <div key={v.label} className="p-2 rounded bg-secondary/40 flex flex-col items-center gap-1">
-              <div className={`w-3 h-3 rounded-full ${v.level === "High" ? "bg-geo-green" : v.level === "Medium" ? "bg-geo-amber" : "bg-geo-red"}`} />
-              <span className="text-[9px] text-center text-muted-foreground leading-tight">{v.label}</span>
-              <span className="text-[9px] font-bold uppercase">{v.level}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -237,15 +218,15 @@ function RiskTab({ zone }: { zone: Zone }) {
 function EcologyTab({ zone }: { zone: Zone }) {
   return (
     <div className="space-y-3">
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-geo-green/15 bg-geo-green/3">
         <div className="flex items-center gap-1.5 mb-2">
-          <Sprout size={12} className="text-geo-green" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-green">Ecological Opportunity</span>
+          <Sprout size={11} className="text-geo-green" />
+          <span className="text-[10px] font-semibold uppercase text-geo-green">Ecological Opportunity</span>
         </div>
-        <p className="text-[12px] leading-relaxed text-secondary-foreground mb-2">{zone.opportunity}</p>
+        <p className="text-[12px] leading-relaxed text-muted-foreground mb-2">{zone.opportunity}</p>
         <div className="grid grid-cols-2 gap-1.5">
           {zone.opportunityIndicators.map(ind => (
-            <div key={ind.label} className="flex items-center justify-between p-1.5 rounded bg-secondary/40">
+            <div key={ind.label} className="flex items-center justify-between p-1.5 rounded bg-white/80">
               <span className="text-[10px] text-muted-foreground">{ind.label}</span>
               <LevelPill level={ind.level} />
             </div>
@@ -253,33 +234,29 @@ function EcologyTab({ zone }: { zone: Zone }) {
         </div>
       </div>
       {zone.speciesDeferred ? (
-        <div className="glass-panel-sm p-3">
-          <div className="flex items-center gap-1.5 mb-2">
-            <TreePine size={12} className="text-geo-green" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-green">Native Species</span>
-          </div>
+        <div className="p-3 rounded-lg border border-border/40 bg-white">
           <p className="text-[11px] text-muted-foreground italic">
-            Species recommendation deferred until hydrological and soil conditions are validated.
+            Species recommendation deferred until hydrological conditions are validated.
           </p>
         </div>
       ) : zone.speciesRecommendations.length > 0 && (
-        <div className="glass-panel-sm p-3">
+        <div className="p-3 rounded-lg border border-border/40 bg-white">
           <div className="flex items-center gap-1.5 mb-2">
-            <TreePine size={12} className="text-geo-green" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-green">Native Species Guide</span>
+            <TreePine size={11} className="text-geo-green" />
+            <span className="text-[10px] font-semibold uppercase text-geo-green">Native Species</span>
           </div>
           <div className="space-y-2">
             {zone.speciesRecommendations.map((sp, i) => (
-              <div key={i} className="p-2 rounded bg-secondary/40 border border-border/30">
+              <div key={i} className="p-2 rounded bg-secondary/30">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[12px] font-semibold">{sp.commonName}</span>
                   <span className="text-[10px] text-muted-foreground italic">{sp.scientificName}</span>
                 </div>
-                <div className="flex flex-wrap gap-1 mb-1.5">
-                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-geo-green/10 text-geo-green border border-geo-green/20">{sp.edgeType}</span>
-                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-geo-blue/10 text-geo-blue border border-geo-blue/20">{sp.plantingType}</span>
+                <div className="flex flex-wrap gap-1 mb-1">
+                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-geo-green/10 text-geo-green">{sp.edgeType}</span>
+                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-geo-blue/10 text-geo-blue">{sp.plantingType}</span>
                 </div>
-                <p className="text-[10px] text-secondary-foreground">{sp.usageNote}</p>
+                <p className="text-[10px] text-muted-foreground">{sp.usageNote}</p>
               </div>
             ))}
           </div>
@@ -301,41 +278,27 @@ function ActionsTab({ zone }: { zone: Zone }) {
 
   return (
     <div className="space-y-3">
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="flex items-center gap-1.5 mb-2">
-          <Wrench size={12} className="text-geo-amber" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-amber">Recommended Intervention</span>
+          <Wrench size={11} className="text-geo-amber" />
+          <span className="text-[10px] font-semibold uppercase text-geo-amber">Intervention</span>
         </div>
         <div className="space-y-1.5">
           <div className="flex items-start gap-2 p-2 rounded bg-primary/5 border border-primary/15">
             <span className="text-[9px] font-bold uppercase text-primary mt-0.5 w-14 shrink-0">Primary</span>
             <span className="text-[12px] font-medium">{zone.recommendedIntervention.primary}</span>
           </div>
-          <div className="flex items-start gap-2 p-2 rounded bg-secondary/50">
+          <div className="flex items-start gap-2 p-2 rounded bg-secondary/40">
             <span className="text-[9px] font-bold uppercase text-muted-foreground mt-0.5 w-14 shrink-0">Secondary</span>
-            <span className="text-[12px]">{zone.recommendedIntervention.secondary}</span>
+            <span className="text-[12px] text-muted-foreground">{zone.recommendedIntervention.secondary}</span>
           </div>
         </div>
       </div>
-      <div className="glass-panel-sm p-3">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Shield size={12} className="text-geo-cyan" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-cyan">Preconditions</span>
-        </div>
-        <div className="space-y-1">
-          {zone.preconditions.map((p, i) => (
-            <div key={i} className="flex items-start gap-2 p-1.5 rounded bg-secondary/30 text-[11px]">
-              <Eye size={10} className="text-muted-foreground mt-0.5 shrink-0" />
-              <span className="text-muted-foreground">{p}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="glass-panel-sm p-3">
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="flex items-center gap-2 mb-2">
-          <BrainCircuit size={12} className="text-primary" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">AI Action Steps</span>
-          <div className="ml-auto px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-mono font-medium">
+          <BrainCircuit size={11} className="text-primary" />
+          <span className="text-[10px] font-semibold uppercase text-primary">Action Steps</span>
+          <div className="ml-auto px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-mono font-bold">
             {completed.size}/{zone.aiSteps.length}
           </div>
         </div>
@@ -345,15 +308,15 @@ function ActionsTab({ zone }: { zone: Zone }) {
               key={i}
               onClick={() => toggle(i)}
               className={`w-full text-left flex items-start gap-2 p-2 rounded transition-colors ${
-                completed.has(i) ? "bg-primary/5 border border-primary/15" : "bg-secondary/30 hover:bg-secondary/50"
+                completed.has(i) ? "bg-primary/5" : "bg-secondary/20 hover:bg-secondary/40"
               }`}
             >
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
-                completed.has(i) ? "border-primary bg-primary" : "border-muted-foreground/30"
+                completed.has(i) ? "border-primary bg-primary" : "border-muted-foreground/25"
               }`}>
                 {completed.has(i) && <CheckCircle2 size={10} className="text-white" />}
               </div>
-              <span className={`text-[11px] ${completed.has(i) ? "text-primary line-through" : "text-secondary-foreground"}`}>{step}</span>
+              <span className={`text-[11px] ${completed.has(i) ? "text-primary line-through" : "text-muted-foreground"}`}>{step}</span>
             </button>
           ))}
         </div>
@@ -363,62 +326,77 @@ function ActionsTab({ zone }: { zone: Zone }) {
 }
 
 function CommunityTab({ zone }: { zone: Zone }) {
-  // Mock community data
   const recentReports = [
-    { type: "flood", date: "2 days ago", user: "Anonymous citizen" },
-    { type: "ecological", date: "5 days ago", user: "Community volunteer" },
-    { type: "flood", date: "1 week ago", user: "Anonymous citizen" },
+    { type: "flood", text: "Severe flooding on main road", date: "2 days ago", user: "Anonymous", validated: 5 },
+    { type: "flood", text: "Drainage overflow near school", date: "4 days ago", user: "Citizen", validated: 12 },
+    { type: "ecological", text: "Mangrove regrowth spotted", date: "1 week ago", user: "Volunteer", validated: 8 },
   ];
 
   return (
     <div className="space-y-3">
-      <div className="glass-panel-sm p-3">
+      {/* Community Actions */}
+      <div className="p-3 rounded-lg border border-primary/15 bg-primary/3">
+        <div className="text-[10px] font-semibold uppercase text-primary mb-2">Community Actions</div>
+        <div className="space-y-1.5">
+          {[
+            { icon: AlertTriangle, label: "Report flooding here", link: "/report/flood", color: "text-destructive" },
+            { icon: Camera, label: "Add photo evidence", link: "/report/flood", color: "text-geo-blue" },
+            { icon: TreePine, label: "Add ecological observation", link: "/report/ecological", color: "text-geo-green" },
+            { icon: ThumbsUp, label: "Confirm this flooding happens here", link: "#", color: "text-primary" },
+          ].map((action, i) => (
+            <Link
+              key={i}
+              to={action.link}
+              className="flex items-center gap-2.5 p-2 rounded-lg bg-white hover:bg-secondary/30 transition-colors"
+            >
+              <action.icon size={13} className={action.color} />
+              <span className="text-[12px] font-medium">{action.label}</span>
+              <ArrowRight size={10} className="text-muted-foreground ml-auto" />
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Reports */}
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="flex items-center gap-1.5 mb-2">
-          <MessageSquare size={12} className="text-geo-blue" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-geo-blue">Recent Reports</span>
-          <span className="ml-auto text-[10px] font-mono text-muted-foreground">{recentReports.length} total</span>
+          <MessageSquare size={11} className="text-geo-blue" />
+          <span className="text-[10px] font-semibold uppercase text-geo-blue">Recent Reports</span>
+          <span className="ml-auto text-[10px] font-mono text-muted-foreground">{recentReports.length}</span>
         </div>
         <div className="space-y-1.5">
           {recentReports.map((report, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 rounded bg-secondary/30">
+            <div key={i} className="flex items-start gap-2 p-2 rounded bg-secondary/30">
               {report.type === "flood" ? (
-                <Droplets size={11} className="text-geo-blue shrink-0" />
+                <Droplets size={11} className="text-geo-blue shrink-0 mt-0.5" />
               ) : (
-                <TreePine size={11} className="text-geo-green shrink-0" />
+                <TreePine size={11} className="text-geo-green shrink-0 mt-0.5" />
               )}
               <div className="flex-1 min-w-0">
-                <span className="text-[11px] font-medium capitalize">{report.type} report</span>
-                <span className="text-[10px] text-muted-foreground ml-1.5">· {report.date}</span>
+                <div className="text-[11px] font-medium">{report.text}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[10px] text-muted-foreground">{report.date}</span>
+                  <span className="flex items-center gap-0.5 text-[10px] text-primary">
+                    <ThumbsUp size={8} /> {report.validated} validated
+                  </span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <Link
-          to="/report/flood"
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-destructive text-white text-xs font-semibold rounded-lg hover:bg-destructive/90 transition-colors"
-        >
-          <AlertTriangle size={12} />
-          Report Flood
-        </Link>
-        <Link
-          to="/report/ecological"
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-geo-green text-white text-xs font-semibold rounded-lg hover:bg-geo-green/90 transition-colors"
-        >
-          <TreePine size={12} />
-          Observation
-        </Link>
-      </div>
-
-      <div className="glass-panel-sm p-3 text-center">
-        <p className="text-[11px] text-muted-foreground">
-          Validate reports by visiting zones and confirming observations.
-        </p>
-        <button className="mt-2 px-4 py-1.5 bg-secondary text-xs font-medium rounded-lg hover:bg-secondary/80 transition-colors">
-          Validate nearby reports
-        </button>
+      {/* Community Checklist */}
+      <div className="p-3 rounded-lg border border-border/40 bg-white">
+        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">How You Can Help</div>
+        <div className="space-y-1">
+          {zone.communityChecklist.map((item, i) => (
+            <div key={i} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+              <span className="text-primary shrink-0 mt-0.5">✓</span>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -427,18 +405,18 @@ function CommunityTab({ zone }: { zone: Zone }) {
 function BeforeAfterSection({ zone }: { zone: Zone }) {
   const [showAfter, setShowAfter] = useState(false);
   return (
-    <div className="glass-panel-sm p-3">
+    <div className="p-3 rounded-lg border border-border/40 bg-white">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Current vs. Intervention</span>
+        <span className="text-[10px] font-semibold uppercase text-muted-foreground">Current vs. Intervention</span>
         <div className="flex items-center bg-secondary rounded-md p-0.5">
           <button onClick={() => setShowAfter(false)} className={`px-2.5 py-1 text-[10px] font-medium rounded transition-all ${!showAfter ? 'bg-destructive/10 text-destructive' : 'text-muted-foreground'}`}>Before</button>
-          <button onClick={() => setShowAfter(true)} className={`px-2.5 py-1 text-[10px] font-medium rounded transition-all ${showAfter ? 'bg-geo-green/15 text-geo-green' : 'text-muted-foreground'}`}>After</button>
+          <button onClick={() => setShowAfter(true)} className={`px-2.5 py-1 text-[10px] font-medium rounded transition-all ${showAfter ? 'bg-geo-green/12 text-geo-green' : 'text-muted-foreground'}`}>After</button>
         </div>
       </div>
-      <motion.div key={showAfter ? "a" : "b"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`p-2.5 rounded border ${showAfter ? "bg-geo-green/5 border-geo-green/15" : "bg-geo-red/5 border-geo-red/15"}`}>
+      <motion.div key={showAfter ? "a" : "b"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`p-2.5 rounded border ${showAfter ? "bg-geo-green/3 border-geo-green/15" : "bg-destructive/3 border-destructive/15"}`}>
         <div className="flex items-start gap-2">
-          <ArrowRight size={12} className={`mt-0.5 shrink-0 ${showAfter ? "text-geo-green" : "text-geo-red"}`} />
-          <p className="text-[12px] leading-relaxed">{showAfter ? zone.afterDescription : zone.beforeDescription}</p>
+          <ArrowRight size={11} className={`mt-0.5 shrink-0 ${showAfter ? "text-geo-green" : "text-destructive"}`} />
+          <p className="text-[12px] leading-relaxed text-muted-foreground">{showAfter ? zone.afterDescription : zone.beforeDescription}</p>
         </div>
       </motion.div>
     </div>
