@@ -21,11 +21,11 @@ export default function AIRecommendation({ steps }: AIRecommendationProps) {
   return (
     <div className="glass-panel-sm p-4">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
+        <div className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
           <BrainCircuit size={14} className="text-primary" />
         </div>
         <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-          Recomendación IA
+          AI Recommendation
         </span>
         <div className="ml-auto px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-mono font-medium">
           {completed.size}/{steps.length}
@@ -47,7 +47,7 @@ export default function AIRecommendation({ steps }: AIRecommendationProps) {
               {completed.has(i) ? (
                 <CheckCircle2 size={15} className="text-primary" />
               ) : (
-                <Circle size={15} className="text-muted-foreground/50" />
+                <Circle size={15} className="text-muted-foreground/40" />
               )}
             </div>
             <div>
