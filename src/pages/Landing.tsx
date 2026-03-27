@@ -30,8 +30,8 @@ export default function Landing() {
             <span className="text-xs text-muted-foreground">· Guayaquil & Samborondón</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link to="/about" className="hover:text-foreground transition-colors">Acerca de</Link>
-            <Link to="/methodology" className="hover:text-foreground transition-colors">Metodología</Link>
+            <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
+            <Link to="/methodology" className="hover:text-foreground transition-colors">Methodology</Link>
             <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
           </div>
         </div>
