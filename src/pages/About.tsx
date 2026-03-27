@@ -18,9 +18,9 @@ export default function About() {
         <div className="space-y-8">
           {/* What is it */}
           <div className="glass-panel p-6">
-            <h2 className="text-lg font-bold mb-3">What Is Borde Vivo AI?</h2>
+            <h2 className="text-lg font-bold mb-3">What Is Mangleye?</h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              Borde Vivo AI is a territorial intelligence platform that identifies where restoring ecological edges 
+              Mangleye is a territorial intelligence platform that identifies where restoring ecological edges 
               can reduce urban flooding in Guayaquil and Samborondón. It combines citizen reporting, geospatial analysis, 
               ecological opportunity assessment, and AI-assisted interpretation to produce explainable, 
               zone-specific intervention recommendations.
