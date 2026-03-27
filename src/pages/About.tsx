@@ -9,7 +9,7 @@ export default function About() {
       <Header />
       <div className="max-w-4xl mx-auto py-12 px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold mb-3">About Borde Vivo AI</h1>
+          <h1 className="text-3xl font-bold mb-3">About Mangleye</h1>
           <p className="text-lg text-muted-foreground mb-8">
             Urban Edge Intelligence for Flood Resilience in Guayaquil and Samborondón
           </p>
@@ -18,9 +18,9 @@ export default function About() {
         <div className="space-y-8">
           {/* What is it */}
           <div className="glass-panel p-6">
-            <h2 className="text-lg font-bold mb-3">What Is Borde Vivo AI?</h2>
+            <h2 className="text-lg font-bold mb-3">What Is Mangleye?</h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              Borde Vivo AI is a territorial intelligence platform that identifies where restoring ecological edges 
+              Mangleye is a territorial intelligence platform that identifies where restoring ecological edges 
               can reduce urban flooding in Guayaquil and Samborondón. It combines citizen reporting, geospatial analysis, 
               ecological opportunity assessment, and AI-assisted interpretation to produce explainable, 
               zone-specific intervention recommendations.
@@ -97,7 +97,7 @@ export default function About() {
           <div className="glass-panel p-6">
             <h2 className="text-lg font-bold mb-3">Municipality Collaboration</h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              Borde Vivo AI is designed to support municipal decision-making, not replace it. The platform provides 
+              Mangleye is designed to support municipal decision-making, not replace it. The platform provides 
               zone-level technical reports, priority rankings, and AI-generated planning notes that can inform 
               inter-institutional coordination between environmental, urban planning, and social agencies.
             </p>

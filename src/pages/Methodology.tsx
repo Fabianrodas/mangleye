@@ -21,7 +21,7 @@ export default function Methodology() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
           <h1 className="text-3xl font-bold mb-3">Methodology</h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-            How Borde Vivo AI analyzes urban flood exposure, ecological opportunity, and intervention viability 
+            How Mangleye analyzes urban flood exposure, ecological opportunity, and intervention viability 
             to produce transparent, zone-specific recommendations.
           </p>
         </motion.div>
@@ -78,7 +78,7 @@ export default function Methodology() {
         <div className="glass-panel p-6 mb-8">
           <h2 className="text-lg font-bold mb-3">Why the Intervention Is Not Always Planting Mangroves</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            A key design principle of Borde Vivo AI is intervention specificity. The platform evaluates each zone's conditions 
+            A key design principle of Mangleye is intervention specificity. The platform evaluates each zone's conditions 
             to determine the most appropriate response, which may include:
           </p>
           <div className="space-y-2">

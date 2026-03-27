@@ -315,7 +315,7 @@ export default function TechnicalReport() {
           </div>
 
           <div className="text-center text-[10px] text-muted-foreground py-4">
-            Borde Vivo AI · Technical Zone Report · Generated for planning and review purposes
+            Mangleye · Technical Zone Report · Generated for planning and review purposes
           </div>
         </motion.div>
       </div>
