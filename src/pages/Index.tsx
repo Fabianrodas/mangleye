@@ -5,7 +5,8 @@ import LayerFilters from "@/components/LayerFilters";
 import PriorityPanel from "@/components/PriorityPanel";
 import ZoneDetail from "@/components/ZoneDetail";
 import { type Zone, type LayerType } from "@/data/zones";
-import { Layers, ChevronLeft, ChevronRight } from "lucide-react";
+import { Layers, ChevronLeft, ChevronRight, AlertTriangle, TreePine } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Index() {
   const [activeLayers, setActiveLayers] = useState<LayerType[]>([]);
@@ -36,6 +37,24 @@ export default function Index() {
               <LayerFilters activeLayers={activeLayers} onToggle={toggleLayer} />
             </div>
           </div>
+
+          {/* Map quick actions */}
+          <div className="absolute bottom-4 left-4 z-[1000] flex gap-2">
+            <Link
+              to="/report/flood"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-destructive text-white text-sm font-semibold rounded-lg shadow-lg hover:bg-destructive/90 transition-colors"
+            >
+              <AlertTriangle size={14} />
+              Report Flood
+            </Link>
+            <Link
+              to="/report/ecological"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-geo-green text-white text-sm font-semibold rounded-lg shadow-lg hover:bg-geo-green/90 transition-colors"
+            >
+              <TreePine size={14} />
+              Observation
+            </Link>
+          </div>
         </div>
 
         {/* Sidebar toggle */}
@@ -58,13 +77,13 @@ export default function Index() {
                   <div className="flex items-center gap-2 mb-1">
                     <Layers size={14} className="text-primary" />
                     <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Panel de análisis
+                      Analysis Panel
                     </span>
                   </div>
                   <PriorityPanel selectedZone={selectedZone} onSelectZone={setSelectedZone} />
                   <div className="glass-panel-sm p-3 text-center">
                     <p className="text-xs text-muted-foreground">
-                      Selecciona una zona en el mapa o en el ranking para ver el análisis detallado
+                      Select a zone on the map or ranking to see detailed analysis
                     </p>
                   </div>
                 </>
