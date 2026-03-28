@@ -3,14 +3,16 @@ import { type LayerType, LAYER_CONFIG } from "@/data/zones";
 import { useState } from "react";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 
-const ICONS: Record<LayerType, React.ElementType> = {
+const ICONS: Record<string, React.ElementType> = {
   "flood-zones": Droplets,
   "flood-reports": MessageSquare,
   "estuaries": Waves,
-  "functional-mangrove": TreePine,
-  "degraded-mangrove": AlertTriangle,
-  "candidate-restoration": Target,
-  "ecological-opportunity": Sprout,
+  "mangrove-2022": TreePine,
+  "mangrove-2020": TreePine,
+  "mangrove-2018": TreePine,
+  "change-2018-2020": AlertTriangle,
+  "change-2020-2022": AlertTriangle,
+  "change-ecuador-coast": Target,
   "exposed-population": Users,
   "urban-pressure": Building2,
   "permeability": Layers,
@@ -19,9 +21,10 @@ const ICONS: Record<LayerType, React.ElementType> = {
 };
 
 const LAYER_GROUPS = [
+  { label: "Mangrove Extent", keys: ["mangrove-2022", "mangrove-2020", "mangrove-2018"] as LayerType[], color: "text-geo-green" },
+  { label: "Mangrove Change", keys: ["change-2018-2020", "change-2020-2022", "change-ecuador-coast"] as LayerType[], color: "text-geo-amber" },
   { label: "Flooding", keys: ["flood-zones", "flood-reports"] as LayerType[], color: "text-geo-blue" },
-  { label: "Water & Ecology", keys: ["estuaries", "functional-mangrove", "degraded-mangrove", "candidate-restoration", "ecological-opportunity"] as LayerType[], color: "text-geo-green" },
-  { label: "Urban & Analysis", keys: ["exposed-population", "urban-pressure", "permeability", "restoration-suitability", "priority-intervention"] as LayerType[], color: "text-geo-amber" },
+  { label: "Urban & Analysis", keys: ["estuaries", "exposed-population", "urban-pressure", "permeability", "restoration-suitability", "priority-intervention"] as LayerType[], color: "text-muted-foreground" },
 ];
 
 interface LayerFiltersProps {
@@ -32,7 +35,7 @@ interface LayerFiltersProps {
 export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const visibleGroups = expanded ? LAYER_GROUPS : LAYER_GROUPS.slice(0, 1);
+  const visibleGroups = expanded ? LAYER_GROUPS : LAYER_GROUPS.slice(0, 2);
 
   return (
     <div className="glass-panel p-3 max-w-[500px]">
@@ -72,7 +75,8 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
             <div className="flex flex-wrap gap-1.5">
               {group.keys.map(key => {
                 const cfg = LAYER_CONFIG[key];
-                const Icon = ICONS[key];
+                if (!cfg) return null;
+                const Icon = ICONS[key] || Layers;
                 const active = activeLayers.includes(key);
                 return (
                   <button
@@ -101,6 +105,7 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {activeLayers.map(key => {
               const cfg = LAYER_CONFIG[key];
+              if (!cfg) return null;
               return (
                 <div key={key} className="flex items-center gap-1.5">
                   <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: cfg.color }} />
@@ -109,6 +114,19 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
               );
             })}
           </div>
+          {/* Change legend */}
+          {activeLayers.some(l => l.startsWith("change-")) && (
+            <div className="flex gap-3 mt-1.5">
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: "#2D8B5E" }} />
+                <span className="text-[10px] text-muted-foreground">Gain</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: "#C04040" }} />
+                <span className="text-[10px] text-muted-foreground">Loss</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
