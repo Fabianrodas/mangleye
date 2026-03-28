@@ -31,10 +31,11 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      {/* Dark cinematic overlay — heavier at top for headline readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(192,18%,6%)/0.85] via-[hsl(192,18%,6%)/0.55] to-[hsl(192,18%,6%)/0.9] pointer-events-none" />
-      {/* Left-side fog for text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,6%)/0.6] via-[hsl(192,18%,6%)/0.25] to-transparent pointer-events-none" />
+      {/* Soft cinematic overlays — no hard edges */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,6%)/0.88] via-[hsl(192,18%,6%)/0.5] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(192,18%,6%)/0.7] via-transparent to-[hsl(192,18%,6%)/0.85] pointer-events-none" />
+      {/* Extra soft fog behind text zone */}
+      <div className="absolute inset-y-0 left-0 w-[60%] bg-gradient-to-r from-[hsl(192,18%,6%)/0.4] to-transparent pointer-events-none backdrop-blur-[2px]" />
 
       {/* Content */}
       <div className="relative z-10 w-full pb-12 pt-32 px-6">
@@ -43,20 +44,20 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="max-w-2xl bg-black/50 backdrop-blur-md rounded-2xl px-8 py-8 border border-white/10 shadow-[0_8px_60px_rgba(0,0,0,0.6)]"
+            className="max-w-2xl"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/30 border border-destructive/40 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/30 border border-destructive/40 backdrop-blur-sm mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
               <span className="text-[11px] font-semibold text-white">Active flooding season</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.8),0_4px_40px_rgba(0,0,0,0.5)]">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.9),0_4px_48px_rgba(0,0,0,0.6),0_0_80px_rgba(0,0,0,0.4)]">
               Guayaquil didn't just flood.
               <br />
-              <span className="text-[hsl(188,80%,55%)] [text-shadow:0_0_30px_hsl(188,60%,45%,0.5),0_2px_20px_rgba(0,0,0,0.8)]">It lost its protective edges.</span>
+              <span className="text-[hsl(188,85%,60%)] [text-shadow:0_0_36px_hsl(188,60%,45%,0.6),0_2px_24px_rgba(0,0,0,0.9)]">It lost its protective edges.</span>
             </h1>
 
-            <p className="text-base md:text-lg text-white/80 mb-8 leading-relaxed max-w-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
+            <p className="text-base md:text-lg text-white/85 mb-8 leading-relaxed max-w-lg [text-shadow:0_1px_12px_rgba(0,0,0,0.7)]">
               Urban growth replaced natural buffers. Water now has nowhere to go. Mangleye maps the damage and the path to restoration.
             </p>
 
