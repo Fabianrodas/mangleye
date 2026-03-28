@@ -47,8 +47,7 @@ function MapPoint({ point, index, isActive }: { point: typeof mapPoints[0]; inde
       {/* Glow for active */}
       {isActive && (
         <motion.div
-          className={`absolute rounded-full ${point.color}/20`}
-          style={{ width: point.size * 3, height: point.size * 3, marginLeft: -(point.size * 3 - point.size) / 2, marginTop: -(point.size * 3 - point.size) / 2 }}
+          className="absolute rounded-full"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 1.5, repeat: Infinity }}
