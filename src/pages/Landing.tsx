@@ -9,15 +9,27 @@ import MapPreviewSection from "@/components/landing/MapPreviewSection";
 import FeaturedZonesSection from "@/components/landing/FeaturedZonesSection";
 import { Link } from "react-router-dom";
 import { Leaf, AlertTriangle, Map } from "lucide-react";
+import { motion } from "framer-motion";
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
+};
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <HeroSection />
-      <BeforeAfterSection />
-      <WhatThisAreaLost />
-      <WaterFlowStory />
+      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
+        <BeforeAfterSection />
+      </motion.div>
+      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
+        <WhatThisAreaLost />
+      </motion.div>
+      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
+        <WaterFlowStory />
+      </motion.div>
       <SystemDecision />
       <CitizenPipeline />
       <MapPreviewSection />
