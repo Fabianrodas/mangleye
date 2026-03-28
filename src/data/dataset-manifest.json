@@ -1,0 +1,99 @@
+{
+  "datasets": [
+    {
+      "id": "guayas_mangrove_2018",
+      "file": "guayas_mangrove_2018.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files1/01 MAN_GYE_2018_10m.shp/MAN_GYE_2018_10m.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 2e-05,
+      "stats": {
+        "total_area_ha": 102513.102,
+        "feature_count": 3248
+      }
+    },
+    {
+      "id": "guayas_mangrove_2020",
+      "file": "guayas_mangrove_2020.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files1/02 MAN_GYE_2020_10m/MAN_GYE_2020_10m.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 2e-05,
+      "stats": {
+        "total_area_ha": 100323.901,
+        "feature_count": 2216
+      }
+    },
+    {
+      "id": "guayas_mangrove_2022",
+      "file": "guayas_mangrove_2022.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files1/03 MAN_GYE_2022_10m/MAN_GYE_2022_10m.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 2e-05,
+      "stats": {
+        "total_area_ha": 100254.166,
+        "feature_count": 2939
+      }
+    },
+    {
+      "id": "guayas_change_2018_2020",
+      "file": "guayas_change_2018_2020.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files1/04 CAM_GYE_18_20_10m/CAM_GYE_18_20_10m.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 3e-05,
+      "stats": {
+        "feature_count": 1805,
+        "counts_by_change_type": {
+          "POSSIBLE LOSS": 1384,
+          "POSSIBLE GAIN": 421
+        },
+        "area_ha_by_change_type": {
+          "POSSIBLE GAIN": 714.63,
+          "POSSIBLE LOSS": 2026.452
+        }
+      }
+    },
+    {
+      "id": "guayas_change_2020_2022",
+      "file": "guayas_change_2020_2022.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files1/05 CAM_GYE_20_22_10m/CAM_GYE_20_22_10m.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 3e-05,
+      "stats": {
+        "feature_count": 894,
+        "counts_by_change_type": {
+          "POSSIBLE LOSS": 552,
+          "POSSIBLE GAIN": 342
+        },
+        "area_ha_by_change_type": {
+          "POSSIBLE GAIN": 524.462,
+          "POSSIBLE LOSS": 999.548
+        }
+      }
+    },
+    {
+      "id": "ecuador_coast_change_2018_2022",
+      "file": "ecuador_coast_change_2018_2022.geojson",
+      "source_path": "/mnt/data/extract_dataverse_files/Change_EC_18_22/Cambios_18_22.shp",
+      "source_crs": "EPSG:32717",
+      "output_crs": "EPSG:4326",
+      "simplified_tolerance_degrees": 3e-05,
+      "stats": {
+        "feature_count": 1015,
+        "counts_by_change_type": {
+          "Disminucion del NDVI": 612,
+          "LOSS": 258,
+          "GANANCIA": 145
+        },
+        "area_ha_by_change_type": {
+          "Disminucion del NDVI": 868.655,
+          "GANANCIA": 432.086,
+          "LOSS": 466.256
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "source": "Dataverse uploads provided by user",
+  "geographic_scope": "Guayas Province, Ecuador (plus Ecuador coast change 2018-2022)",
+  "mangrove_area_ha": {
+    "2018": 102513.102,
+    "2020": 100323.901,
+    "2022": 100254.166
+  },
+  "change_guayas_2018_2020": {
+    "POSSIBLE GAIN": 714.63,
+    "POSSIBLE LOSS": 2026.452
+  },
+  "change_guayas_2020_2022": {
+    "POSSIBLE GAIN": 524.462,
+    "POSSIBLE LOSS": 999.548
+  },
+  "change_ecuador_coast_2018_2022": {
+    "Disminucion del NDVI": 868.655,
+    "GANANCIA": 432.086,
+    "LOSS": 466.256
+  },
+  "net_change_ha": {
+    "2018_to_2020": -2189.201,
+    "2020_to_2022": -69.735,
+    "2018_to_2022": -2258.936
+  }
+}

@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { zones, type Zone, type LayerType, LAYER_CONFIG } from "@/data/zones";
+import { isGeoLayer, fetchGeoLayer, getGeoLayerStyle, getChangeFeatureStyle } from "@/data/geo-layers";
 
 interface MapViewProps {
   activeLayers: LayerType[];
@@ -28,26 +29,6 @@ const seededRandom = (seed: number) => {
 };
 
 // ─── SVG Icon Templates ───
-
-const svgTreeCluster = (color: string, opacity: number) => `
-<svg width="32" height="28" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <ellipse cx="10" cy="10" rx="7" ry="8" fill="${color}" fill-opacity="${opacity}"/>
-  <ellipse cx="22" cy="8" rx="6" ry="7" fill="${color}" fill-opacity="${opacity * 0.85}"/>
-  <ellipse cx="16" cy="16" rx="8" ry="9" fill="${color}" fill-opacity="${opacity * 0.9}"/>
-  <rect x="9" y="18" width="2" height="6" rx="1" fill="${color}" fill-opacity="0.5"/>
-  <rect x="15" y="20" width="2" height="5" rx="1" fill="${color}" fill-opacity="0.5"/>
-  <rect x="21" y="17" width="2" height="7" rx="1" fill="${color}" fill-opacity="0.5"/>
-</svg>`;
-
-const svgDegradedTree = (color: string, opacity: number) => `
-<svg width="28" height="26" viewBox="0 0 28 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <ellipse cx="8" cy="10" rx="5" ry="6" fill="${color}" fill-opacity="${opacity * 0.6}"/>
-  <ellipse cx="20" cy="9" rx="4" ry="5" fill="${color}" fill-opacity="${opacity * 0.4}" stroke="${color}" stroke-width="0.5" stroke-dasharray="2 2"/>
-  <ellipse cx="14" cy="15" rx="6" ry="7" fill="${color}" fill-opacity="${opacity * 0.5}" stroke="${color}" stroke-width="0.5" stroke-dasharray="2 2"/>
-  <rect x="7" y="16" width="1.5" height="5" rx="0.75" fill="${color}" fill-opacity="0.35"/>
-  <rect x="13" y="18" width="1.5" height="4" rx="0.75" fill="${color}" fill-opacity="0.35"/>
-  <line x1="18" y1="12" x2="22" y2="8" stroke="${color}" stroke-width="0.8" stroke-opacity="0.4"/>
-</svg>`;
 
 const svgWaves = (color: string, intensity: string) => {
   const op = intensity === "High" ? 0.7 : intensity === "Medium" ? 0.5 : 0.35;
@@ -93,20 +74,6 @@ const svgUrbanPressure = (color: string) => `
   <line x1="0" y1="24" x2="26" y2="24" stroke="${color}" stroke-width="1.5" stroke-opacity="0.4"/>
 </svg>`;
 
-const svgPermeability = (color: string) => `
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="2" width="20" height="20" rx="4" stroke="${color}" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="3 2" fill="${color}" fill-opacity="0.08"/>
-  <circle cx="8" cy="8" r="2" fill="${color}" fill-opacity="0.35"/>
-  <circle cx="16" cy="8" r="2" fill="${color}" fill-opacity="0.25"/>
-  <circle cx="12" cy="16" r="2.5" fill="${color}" fill-opacity="0.3"/>
-</svg>`;
-
-const svgSuitability = (color: string) => `
-<svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="13" cy="13" r="10" stroke="${color}" stroke-width="1.5" stroke-opacity="0.4" fill="${color}" fill-opacity="0.1"/>
-  <path d="M8 13 L11.5 16.5 L18 10" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.65"/>
-</svg>`;
-
 const svgPriority = (color: string) => `
 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <polygon points="14,2 17,10 26,10 19,16 21,25 14,20 7,25 9,16 2,10 11,10" fill="${color}" fill-opacity="0.55" stroke="${color}" stroke-width="1.2" stroke-opacity="0.7"/>
@@ -118,21 +85,17 @@ const svgLeaf = (color: string) => `
   <path d="M4 20 Q10 14, 16 4" stroke="${color}" stroke-width="0.8" stroke-opacity="0.4" fill="none"/>
 </svg>`;
 
-// ─── Layer icon builder ───
+// ─── Layer icon builder (only for non-geo layers) ───
 
 const getLayerIcon = (layer: LayerType, zone: Zone) => {
   const configs: Record<string, { svg: string; size: [number, number] }> = {
-    "functional-mangrove": { svg: svgTreeCluster("#2D8B5E", 0.8), size: [32, 28] },
-    "degraded-mangrove": { svg: svgDegradedTree("#B8860B", 0.75), size: [28, 26] },
-    "candidate-restoration": { svg: svgLeaf("#3BA58B"), size: [24, 24] },
-    "ecological-opportunity": { svg: svgLeaf("#4A9D6E"), size: [24, 24] },
     "flood-zones": { svg: svgWaves("#2E6EB5", zone.floodLevel), size: [36, 24] },
     "flood-reports": { svg: svgFloodDrop("#2E6EB5", zone.floodLevel), size: [20, 26] },
     "estuaries": { svg: svgEstuary("#3A8FA7"), size: [30, 22] },
     "exposed-population": { svg: svgPopulation("#C04040"), size: [24, 24] },
     "urban-pressure": { svg: svgUrbanPressure("#D4A038"), size: [26, 26] },
-    "permeability": { svg: svgPermeability("#6B52AE"), size: [24, 24] },
-    "restoration-suitability": { svg: svgSuitability("#2A8060"), size: [26, 26] },
+    "permeability": { svg: svgLeaf("#6B52AE"), size: [24, 24] },
+    "restoration-suitability": { svg: svgLeaf("#2A8060"), size: [26, 26] },
     "priority-intervention": { svg: svgPriority("#C04040"), size: [28, 28] },
   };
 
@@ -175,14 +138,10 @@ const getZoneIcon = (zone: Zone, isSelected: boolean) => {
   });
 };
 
-// ─── Territorial overlays (background context) ───
+// ─── Territorial overlays (for non-geo layers only) ───
 
 const createTerritorialOverlay = (zone: Zone, layer: LayerType, group: L.LayerGroup) => {
   const colorMap: Record<string, string> = {
-    "functional-mangrove": "hsl(150, 55%, 38%)",
-    "degraded-mangrove": "hsl(38, 70%, 48%)",
-    "candidate-restoration": "hsl(172, 50%, 42%)",
-    "ecological-opportunity": "hsl(140, 45%, 45%)",
     "flood-zones": "hsl(220, 65%, 52%)",
     "flood-reports": "hsl(205, 72%, 48%)",
     "estuaries": "hsl(195, 60%, 42%)",
@@ -193,11 +152,10 @@ const createTerritorialOverlay = (zone: Zone, layer: LayerType, group: L.LayerGr
     "priority-intervention": "hsl(4, 65%, 46%)",
   };
 
-  const color = colorMap[layer] || "hsl(200, 30%, 50%)";
+  const color = colorMap[layer];
+  if (!color) return; // geo layers handled separately
 
-  // Determine radius and opacity based on layer type and zone properties
   const isFlood = layer === "flood-zones" || layer === "flood-reports";
-  const isMangrove = ["functional-mangrove", "degraded-mangrove", "candidate-restoration", "ecological-opportunity"].includes(layer);
   const isPriority = layer === "priority-intervention";
 
   let radius = 600;
@@ -205,11 +163,7 @@ const createTerritorialOverlay = (zone: Zone, layer: LayerType, group: L.LayerGr
   let weight = 1.5;
   let dashArray: string | undefined;
 
-  if (isMangrove) {
-    radius = layer === "functional-mangrove" ? 1000 : 800;
-    fillOpacity = layer === "functional-mangrove" ? 0.2 : 0.14;
-    weight = 2;
-  } else if (isFlood) {
+  if (isFlood) {
     const intensity = zone.floodLevel;
     radius = layer === "flood-zones" ? 950 : 650;
     fillOpacity = intensity === "High" ? 0.22 : intensity === "Medium" ? 0.14 : 0.08;
@@ -230,66 +184,42 @@ const createTerritorialOverlay = (zone: Zone, layer: LayerType, group: L.LayerGr
     dashArray = "5 4";
   }
 
-  // Main overlay circle
   const main = L.circle([zone.lat, zone.lng], {
-    radius,
-    color,
-    fillColor: color,
-    fillOpacity,
-    weight,
-    opacity: 0.45,
-    dashArray,
+    radius, color, fillColor: color, fillOpacity, weight, opacity: 0.45, dashArray,
   });
   group.addLayer(main);
 
-  // Extra rings for flood intensity
   if (isFlood && (zone.floodLevel === "High" || zone.floodLevel === "Medium")) {
     const ringCount = zone.floodLevel === "High" ? 2 : 1;
     for (let i = 1; i <= ringCount; i++) {
       const ring = L.circle([zone.lat, zone.lng], {
-        radius: radius * (0.5 + i * 0.2),
-        color,
-        fillColor: "transparent",
-        fillOpacity: 0,
-        weight: 1.5,
-        opacity: 0.25,
-        dashArray: "4 6",
+        radius: radius * (0.5 + i * 0.2), color, fillColor: "transparent", fillOpacity: 0, weight: 1.5, opacity: 0.25, dashArray: "4 6",
       });
       group.addLayer(ring);
     }
   }
 
-  // Extra inner marker for priority
   if (isPriority) {
     const inner = L.circle([zone.lat, zone.lng], {
-      radius: radius * 0.3,
-      color,
-      fillColor: color,
-      fillOpacity: 0.3,
-      weight: 1.5,
-      opacity: 0.5,
+      radius: radius * 0.3, color, fillColor: color, fillOpacity: 0.3, weight: 1.5, opacity: 0.5,
     });
     group.addLayer(inner);
   }
 };
 
-// ─── Scatter layer icons around zones for spatial feel ───
+// ─── Scatter layer icons for non-geo layers ───
 
 const scatterLayerIcons = (zone: Zone, layer: LayerType, group: L.LayerGroup) => {
   const seed = zone.lat * 1000 + zone.lng * 1000 + layer.charCodeAt(0);
-  const isMangrove = ["functional-mangrove", "degraded-mangrove", "candidate-restoration", "ecological-opportunity"].includes(layer);
   const isFlood = layer === "flood-zones" || layer === "flood-reports";
 
-  // Number of scattered icons depends on layer type
-  const count = isMangrove
-    ? (layer === "functional-mangrove" ? 6 : layer === "degraded-mangrove" ? 4 : 3)
-    : isFlood
+  const count = isFlood
     ? (zone.floodLevel === "High" ? 5 : zone.floodLevel === "Medium" ? 3 : 2)
     : layer === "estuaries" ? 3
     : layer === "priority-intervention" ? 2
     : 2;
 
-  const spread = isMangrove ? 0.008 : isFlood ? 0.007 : 0.005;
+  const spread = isFlood ? 0.007 : 0.005;
 
   for (let i = 0; i < count; i++) {
     const angle = (Math.PI * 2 * i) / count + (seededRandom(seed + i) - 0.5) * 1.2;
@@ -307,7 +237,9 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
   const overlaysRef = useRef<L.LayerGroup | null>(null);
+  const geoLayersRef = useRef<L.LayerGroup | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [loadingLayers, setLoadingLayers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -329,6 +261,7 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
 
     markersRef.current = L.layerGroup().addTo(map);
     overlaysRef.current = L.layerGroup().addTo(map);
+    geoLayersRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
     return () => {
@@ -369,20 +302,74 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
     });
   }, [activeLayers, selectedZone, onSelectZone]);
 
-  // Update territorial overlays + scattered layer icons
+  // Update non-geo overlays (flood, urban, etc.)
   useEffect(() => {
     if (!overlaysRef.current) return;
     overlaysRef.current.clearLayers();
 
+    const nonGeoLayers = activeLayers.filter(l => !isGeoLayer(l));
+
     zones.forEach(zone => {
       zone.layers.forEach(layer => {
-        if (!activeLayers.includes(layer)) return;
-
-        // Background territorial overlay
+        if (!nonGeoLayers.includes(layer)) return;
         createTerritorialOverlay(zone, layer, overlaysRef.current!);
-
-        // Scattered SVG icons for spatial texture
         scatterLayerIcons(zone, layer, overlaysRef.current!);
+      });
+    });
+  }, [activeLayers]);
+
+  // Load and render real GeoJSON layers
+  useEffect(() => {
+    if (!geoLayersRef.current) return;
+    geoLayersRef.current.clearLayers();
+
+    const geoLayers = activeLayers.filter(l => isGeoLayer(l));
+    if (geoLayers.length === 0) return;
+
+    const loading = new Set<string>();
+    geoLayers.forEach(l => loading.add(l));
+    setLoadingLayers(loading);
+
+    geoLayers.forEach(async (layer) => {
+      const data = await fetchGeoLayer(layer);
+      if (!data || !geoLayersRef.current) return;
+
+      const isChangeLayer = layer.startsWith("change-");
+      const defaultStyle = getGeoLayerStyle(layer);
+
+      const geoJsonLayer = L.geoJSON(data, {
+        style: (feature) => {
+          if (isChangeLayer && feature?.properties?.change_type) {
+            return getChangeFeatureStyle(layer, feature.properties.change_type);
+          }
+          return defaultStyle;
+        },
+        onEachFeature: (feature, featureLayer) => {
+          const props = feature.properties;
+          let tooltip = "";
+
+          if (isChangeLayer) {
+            const changeType = props.change_type || "Unknown";
+            const areaHa = props.area_ha?.toFixed(2) || "—";
+            tooltip = `<b>${changeType}</b><br/>${areaHa} ha`;
+          } else {
+            const areaHa = props.area_ha?.toFixed(2) || "—";
+            tooltip = `<b>Mangrove ${props.year || ""}</b><br/>${areaHa} ha`;
+          }
+
+          featureLayer.bindTooltip(tooltip, {
+            className: "custom-tooltip",
+            sticky: true,
+          });
+        },
+      });
+
+      geoLayersRef.current!.addLayer(geoJsonLayer);
+
+      setLoadingLayers(prev => {
+        const next = new Set(prev);
+        next.delete(layer);
+        return next;
       });
     });
   }, [activeLayers]);
@@ -393,5 +380,15 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
     }
   }, [selectedZone]);
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return (
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="w-full h-full" />
+      {loadingLayers.size > 0 && (
+        <div className="absolute top-3 right-3 z-[1000] glass-panel px-3 py-2 flex items-center gap-2">
+          <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <span className="text-[11px] text-muted-foreground">Loading layers…</span>
+        </div>
+      )}
+    </div>
+  );
 }

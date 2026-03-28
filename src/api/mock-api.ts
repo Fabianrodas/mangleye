@@ -10,6 +10,7 @@ import mangroveData from "@/data/mangroves.mock.json";
 import reportsData from "@/data/reports.mock.json";
 import layersData from "@/data/layers.mock.json";
 import dashboardData from "@/data/dashboard.json";
+import realSummary from "@/data/real-data-summary.json";
 import {
   computePriorityScore,
   computeRiskIndicators,
@@ -233,9 +234,9 @@ export async function getDashboardMetrics(): Promise<typeof dashboardData & {
   return {
     ...dashboardData,
     mangrove_summary: {
-      total_functional_ha: functional.reduce((s, f) => s + f.properties.area_hectares, 0),
-      total_degraded_ha: degraded.reduce((s, f) => s + f.properties.area_hectares, 0),
-      total_lost_ha: lost.reduce((s, f) => s + f.properties.original_area_hectares, 0),
+      total_functional_ha: realSummary.mangrove_area_ha["2022"],
+      total_degraded_ha: Math.abs(realSummary.net_change_ha["2018_to_2022"]),
+      total_lost_ha: realSummary.change_guayas_2018_2020["POSSIBLE LOSS"] + realSummary.change_guayas_2020_2022["POSSIBLE LOSS"],
     },
     report_summary: {
       flood: reportsData.metadata.flood_reports,

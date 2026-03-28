@@ -8,6 +8,7 @@ import ZoneBadge from "@/components/ZoneBadge";
 import DataSourceNote from "@/components/DataSourceNote";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDashboardMetrics, getZones } from "@/api/mock-api";
+import realSummary from "@/data/real-data-summary.json";
 import floodImg from "@/assets/flooding-street.jpg";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
 
@@ -138,8 +139,8 @@ export default function Dashboard() {
               <Leaf size={18} className="text-geo-green" />
             </div>
             <div>
-              <div className="text-lg font-bold font-mono text-geo-green">{metrics.mangrove_summary.total_functional_ha.toFixed(1)} ha</div>
-              <div className="text-[10px] text-muted-foreground">Functional Mangrove</div>
+              <div className="text-lg font-bold font-mono text-geo-green">{realSummary.mangrove_area_ha["2022"].toLocaleString()} ha</div>
+              <div className="text-[10px] text-muted-foreground">Mangrove Extent 2022</div>
             </div>
           </div>
         </div>
@@ -158,8 +159,8 @@ export default function Dashboard() {
             <img src={mangroveImg} alt="Mangrove restoration opportunity" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-foreground/60 to-transparent" />
             <div className="absolute bottom-3 left-4 text-white">
-              <div className="text-lg font-bold">{metrics.mangrove_summary.total_degraded_ha.toFixed(1)} ha</div>
-              <div className="text-[11px] opacity-80">Degraded mangrove requiring action</div>
+              <div className="text-lg font-bold">{Math.abs(realSummary.net_change_ha["2018_to_2022"]).toLocaleString()} ha</div>
+              <div className="text-[11px] opacity-80">Net mangrove loss 2018–2022</div>
             </div>
           </div>
         </div>
