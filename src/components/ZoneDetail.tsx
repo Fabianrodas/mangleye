@@ -134,14 +134,10 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
               {activeTab === "overview" && <OverviewTab zone={zone} />}
               {activeTab === "risk" && <RiskTab zone={zone} />}
               {activeTab === "ecology" && <EcologyTab zone={zone} />}
+              {activeTab === "actions" && <ActionsTab zone={zone} />}
               {activeTab === "community" && <CommunityTab zone={zone} />}
             </motion.div>
           </AnimatePresence>
-
-          {/* Actions - Always visible */}
-          <div className="border-t border-primary/15 pt-3">
-            <ActionsTab zone={zone} />
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
