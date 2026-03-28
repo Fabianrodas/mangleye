@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "total_reports": 127,
+    "flood_reports": 98,
+    "ecological_reports": 29,
+    "date_range": { "from": "2023-01-15", "to": "2024-03-10" },
+    "source": "Citizen reporting system (simulated)"
+  },
+  "reports": [
+    { "id": "r001", "type": "flood", "zone_id": "z1", "lat": -2.171, "lng": -79.921, "severity": "high", "water_height_cm": 45, "timestamp": "2024-02-28T14:30:00Z", "description": "Street flooding near Estero Salado bridge, water entering ground-floor homes", "verified": true, "photo_count": 3 },
+    { "id": "r002", "type": "flood", "zone_id": "z1", "lat": -2.169, "lng": -79.919, "severity": "medium", "water_height_cm": 25, "timestamp": "2024-02-28T15:10:00Z", "description": "Standing water on Av. Carlos Julio Arosemena after rain", "verified": true, "photo_count": 1 },
+    { "id": "r003", "type": "flood", "zone_id": "z2", "lat": -2.221, "lng": -79.912, "severity": "critical", "water_height_cm": 80, "timestamp": "2024-03-02T08:45:00Z", "description": "Major flooding in Isla Trinitaria sector 4, families evacuating", "verified": true, "photo_count": 5 },
+    { "id": "r004", "type": "flood", "zone_id": "z2", "lat": -2.219, "lng": -79.908, "severity": "critical", "water_height_cm": 65, "timestamp": "2024-03-02T09:20:00Z", "description": "Canal overflow flooding informal settlement near school", "verified": true, "photo_count": 4 },
+    { "id": "r005", "type": "flood", "zone_id": "z2", "lat": -2.223, "lng": -79.910, "severity": "high", "water_height_cm": 50, "timestamp": "2024-03-02T10:00:00Z", "description": "Blocked drainage causing accumulation near health center", "verified": false, "photo_count": 2 },
+    { "id": "r006", "type": "ecological", "zone_id": "z1", "lat": -2.170, "lng": -79.923, "severity": "high", "water_height_cm": null, "timestamp": "2024-01-15T11:20:00Z", "description": "Dead mangrove trees observed along estuary edge, possible contamination", "verified": true, "photo_count": 6 },
+    { "id": "r007", "type": "ecological", "zone_id": "z4", "lat": -2.131, "lng": -79.872, "severity": "medium", "water_height_cm": null, "timestamp": "2024-02-10T09:00:00Z", "description": "Shrimp farm expansion encroaching on mangrove buffer zone", "verified": true, "photo_count": 3 },
+    { "id": "r008", "type": "flood", "zone_id": "z3", "lat": -2.201, "lng": -79.952, "severity": "medium", "water_height_cm": 30, "timestamp": "2024-02-15T16:45:00Z", "description": "Localized flooding in Puerto Azul residential area after 2-hour rain", "verified": true, "photo_count": 2 },
+    { "id": "r009", "type": "flood", "zone_id": "z5", "lat": -2.172, "lng": -79.842, "severity": "high", "water_height_cm": 40, "timestamp": "2024-01-22T07:30:00Z", "description": "Riverside flooding near Durán industrial zone affecting workers", "verified": true, "photo_count": 1 },
+    { "id": "r010", "type": "ecological", "zone_id": "z6", "lat": -2.224, "lng": -79.870, "severity": "low", "water_height_cm": null, "timestamp": "2024-03-05T10:30:00Z", "description": "Healthy mangrove regeneration observed on Santay Island east bank", "verified": true, "photo_count": 8 },
+    { "id": "r011", "type": "flood", "zone_id": "z1", "lat": -2.168, "lng": -79.920, "severity": "high", "water_height_cm": 55, "timestamp": "2024-01-08T13:15:00Z", "description": "Estuary overflow during king tide, water reaching Av. Miraflores", "verified": true, "photo_count": 2 },
+    { "id": "r012", "type": "flood", "zone_id": "z2", "lat": -2.220, "lng": -79.914, "severity": "high", "water_height_cm": 60, "timestamp": "2024-01-08T14:00:00Z", "description": "Combined tidal and rain flooding affecting 200+ households", "verified": true, "photo_count": 7 },
+    { "id": "r013", "type": "ecological", "zone_id": "z4", "lat": -2.129, "lng": -79.868, "severity": "high", "water_height_cm": null, "timestamp": "2024-02-20T08:00:00Z", "description": "Illegal clearing of mangrove stand approximately 2 hectares", "verified": true, "photo_count": 4 },
+    { "id": "r014", "type": "flood", "zone_id": "z5", "lat": -2.170, "lng": -79.838, "severity": "medium", "water_height_cm": 35, "timestamp": "2024-02-05T16:30:00Z", "description": "Industrial area drainage backing up into residential sector", "verified": false, "photo_count": 1 },
+    { "id": "r015", "type": "ecological", "zone_id": "z5", "lat": -2.174, "lng": -79.843, "severity": "medium", "water_height_cm": null, "timestamp": "2024-03-01T11:00:00Z", "description": "Oil sheen observed on water surface near mangrove patch", "verified": true, "photo_count": 2 },
+    { "id": "r016", "type": "flood", "zone_id": "z3", "lat": -2.199, "lng": -79.948, "severity": "low", "water_height_cm": 15, "timestamp": "2024-03-08T17:20:00Z", "description": "Minor ponding in park area, drains within 2 hours", "verified": true, "photo_count": 1 },
+    { "id": "r017", "type": "ecological", "zone_id": "z6", "lat": -2.218, "lng": -79.865, "severity": "low", "water_height_cm": null, "timestamp": "2024-02-25T09:45:00Z", "description": "Bird nesting activity increased in restored mangrove section", "verified": true, "photo_count": 5 },
+    { "id": "r018", "type": "flood", "zone_id": "z2", "lat": -2.224, "lng": -79.909, "severity": "critical", "water_height_cm": 90, "timestamp": "2024-02-12T06:00:00Z", "description": "Pre-dawn flooding trapping residents, emergency response needed", "verified": true, "photo_count": 3 },
+    { "id": "r019", "type": "ecological", "zone_id": "z1", "lat": -2.172, "lng": -79.918, "severity": "medium", "water_height_cm": null, "timestamp": "2024-01-30T14:20:00Z", "description": "Trash accumulation in mangrove root system along boardwalk", "verified": true, "photo_count": 4 },
+    { "id": "r020", "type": "flood", "zone_id": "z1", "lat": -2.167, "lng": -79.922, "severity": "medium", "water_height_cm": 30, "timestamp": "2024-03-10T11:45:00Z", "description": "Drainage system overwhelmed during moderate rainfall event", "verified": false, "photo_count": 1 }
+  ]
+}

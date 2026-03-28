@@ -1,0 +1,356 @@
+[
+  {
+    "id": "z1",
+    "name": "Estero Salado – Urdesa Stretch",
+    "lat": -2.17,
+    "lng": -79.92,
+    "zoneType": "Estuary Edge",
+    "area_ha": 12.4,
+    "population_adjacent": 45000,
+    "elevation_min": 1.2,
+    "elevation_max": 3.5,
+    "flood_vulnerability": {
+      "score": 36,
+      "max": 40,
+      "factors": {
+        "return_period_years": 5,
+        "historical_events_last_decade": 14,
+        "drainage_obstruction": true,
+        "tide_influence": "high",
+        "elevation_deficit_m": 1.8
+      }
+    },
+    "population_exposure": {
+      "score": 17,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 8200,
+        "vulnerable_infrastructure_count": 12,
+        "informal_settlements_pct": 15
+      }
+    },
+    "estuary_proximity": {
+      "score": 18,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 25,
+        "hydrological_connectivity": "direct",
+        "tidal_range_m": 2.1
+      }
+    },
+    "ecological_degradation": {
+      "score": 14,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 68,
+        "water_quality_index": 0.32,
+        "biodiversity_index": 0.28,
+        "sedimentation_rate": "high"
+      }
+    },
+    "restoration_suitability": 0.85,
+    "social_benefit_potential": 0.78,
+    "land_use": "mixed_urban_estuary",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  },
+  {
+    "id": "z2",
+    "name": "Isla Trinitaria Edge",
+    "lat": -2.22,
+    "lng": -79.91,
+    "zoneType": "Canal Edge",
+    "area_ha": 18.7,
+    "population_adjacent": 62000,
+    "elevation_min": 0.8,
+    "elevation_max": 2.4,
+    "flood_vulnerability": {
+      "score": 34,
+      "max": 40,
+      "factors": {
+        "return_period_years": 3,
+        "historical_events_last_decade": 22,
+        "drainage_obstruction": true,
+        "tide_influence": "high",
+        "elevation_deficit_m": 2.2
+      }
+    },
+    "population_exposure": {
+      "score": 19,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 14500,
+        "vulnerable_infrastructure_count": 28,
+        "informal_settlements_pct": 72
+      }
+    },
+    "estuary_proximity": {
+      "score": 16,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 80,
+        "hydrological_connectivity": "indirect_canal",
+        "tidal_range_m": 1.6
+      }
+    },
+    "ecological_degradation": {
+      "score": 19,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 92,
+        "water_quality_index": 0.18,
+        "biodiversity_index": 0.12,
+        "sedimentation_rate": "critical"
+      }
+    },
+    "restoration_suitability": 0.55,
+    "social_benefit_potential": 0.92,
+    "land_use": "informal_urban",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  },
+  {
+    "id": "z3",
+    "name": "Puerto Azul Lowland",
+    "lat": -2.20,
+    "lng": -79.95,
+    "zoneType": "Urban Lowland",
+    "area_ha": 34.2,
+    "population_adjacent": 28000,
+    "elevation_min": 2.0,
+    "elevation_max": 4.5,
+    "flood_vulnerability": {
+      "score": 30,
+      "max": 40,
+      "factors": {
+        "return_period_years": 10,
+        "historical_events_last_decade": 8,
+        "drainage_obstruction": false,
+        "tide_influence": "moderate",
+        "elevation_deficit_m": 0.9
+      }
+    },
+    "population_exposure": {
+      "score": 14,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 4200,
+        "vulnerable_infrastructure_count": 5,
+        "informal_settlements_pct": 3
+      }
+    },
+    "estuary_proximity": {
+      "score": 12,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 450,
+        "hydrological_connectivity": "drainage_system",
+        "tidal_range_m": 0.4
+      }
+    },
+    "ecological_degradation": {
+      "score": 16,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 100,
+        "water_quality_index": 0.45,
+        "biodiversity_index": 0.15,
+        "sedimentation_rate": "moderate"
+      }
+    },
+    "restoration_suitability": 0.40,
+    "social_benefit_potential": 0.65,
+    "land_use": "residential_planned",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  },
+  {
+    "id": "z4",
+    "name": "Estero Cobina – Samborondón",
+    "lat": -2.13,
+    "lng": -79.87,
+    "zoneType": "Degraded Ecological Edge",
+    "area_ha": 45.8,
+    "population_adjacent": 15000,
+    "elevation_min": 1.0,
+    "elevation_max": 3.2,
+    "flood_vulnerability": {
+      "score": 28,
+      "max": 40,
+      "factors": {
+        "return_period_years": 8,
+        "historical_events_last_decade": 6,
+        "drainage_obstruction": false,
+        "tide_influence": "high",
+        "elevation_deficit_m": 1.4
+      }
+    },
+    "population_exposure": {
+      "score": 10,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 1800,
+        "vulnerable_infrastructure_count": 3,
+        "informal_settlements_pct": 5
+      }
+    },
+    "estuary_proximity": {
+      "score": 17,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 40,
+        "hydrological_connectivity": "direct",
+        "tidal_range_m": 2.0
+      }
+    },
+    "ecological_degradation": {
+      "score": 18,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 75,
+        "water_quality_index": 0.38,
+        "biodiversity_index": 0.30,
+        "sedimentation_rate": "high"
+      }
+    },
+    "restoration_suitability": 0.88,
+    "social_benefit_potential": 0.50,
+    "land_use": "periurban_ecological",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  },
+  {
+    "id": "z5",
+    "name": "Duran Riverside",
+    "lat": -2.17,
+    "lng": -79.84,
+    "zoneType": "Hybrid Opportunity Area",
+    "area_ha": 22.5,
+    "population_adjacent": 35000,
+    "elevation_min": 1.5,
+    "elevation_max": 3.8,
+    "flood_vulnerability": {
+      "score": 26,
+      "max": 40,
+      "factors": {
+        "return_period_years": 10,
+        "historical_events_last_decade": 9,
+        "drainage_obstruction": true,
+        "tide_influence": "moderate",
+        "elevation_deficit_m": 1.1
+      }
+    },
+    "population_exposure": {
+      "score": 15,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 6800,
+        "vulnerable_infrastructure_count": 8,
+        "informal_settlements_pct": 35
+      }
+    },
+    "estuary_proximity": {
+      "score": 14,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 120,
+        "hydrological_connectivity": "indirect_canal",
+        "tidal_range_m": 1.2
+      }
+    },
+    "ecological_degradation": {
+      "score": 12,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 55,
+        "water_quality_index": 0.42,
+        "biodiversity_index": 0.35,
+        "sedimentation_rate": "moderate"
+      }
+    },
+    "restoration_suitability": 0.72,
+    "social_benefit_potential": 0.70,
+    "land_use": "mixed_industrial_residential",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  },
+  {
+    "id": "z6",
+    "name": "Santay Island Buffer",
+    "lat": -2.22,
+    "lng": -79.87,
+    "zoneType": "Functional Ecological Buffer",
+    "area_ha": 150.0,
+    "population_adjacent": 2000,
+    "elevation_min": 0.5,
+    "elevation_max": 2.8,
+    "flood_vulnerability": {
+      "score": 18,
+      "max": 40,
+      "factors": {
+        "return_period_years": 25,
+        "historical_events_last_decade": 2,
+        "drainage_obstruction": false,
+        "tide_influence": "high",
+        "elevation_deficit_m": 0.6
+      }
+    },
+    "population_exposure": {
+      "score": 4,
+      "max": 20,
+      "factors": {
+        "density_per_km2": 120,
+        "vulnerable_infrastructure_count": 1,
+        "informal_settlements_pct": 0
+      }
+    },
+    "estuary_proximity": {
+      "score": 19,
+      "max": 20,
+      "factors": {
+        "distance_to_channel_m": 0,
+        "hydrological_connectivity": "direct",
+        "tidal_range_m": 2.5
+      }
+    },
+    "ecological_degradation": {
+      "score": 6,
+      "max": 20,
+      "factors": {
+        "mangrove_loss_pct": 12,
+        "water_quality_index": 0.72,
+        "biodiversity_index": 0.78,
+        "sedimentation_rate": "low"
+      }
+    },
+    "restoration_suitability": 0.95,
+    "social_benefit_potential": 0.35,
+    "land_use": "protected_ecological",
+    "data_sources": {
+      "flood_model": "Fathom Global 3.0 (simulated)",
+      "population": "WorldPop 2020 constrained (simulated)",
+      "mangrove": "Global Mangrove Watch v3 (simulated)",
+      "urban": "Copernicus Urban Atlas (simulated)"
+    }
+  }
+]

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "@/components/Header";
 import MapView from "@/components/MapView";
 import LayerFilters from "@/components/LayerFilters";
@@ -6,7 +6,8 @@ import PriorityPanel from "@/components/PriorityPanel";
 import ZoneDetail, { ActionsTab } from "@/components/ZoneDetail";
 import { AnimatePresence, motion } from "framer-motion";
 import { type Zone, type LayerType } from "@/data/zones";
-import dashboardData from "@/data/dashboard.json";
+import { getDashboardMetrics } from "@/api/mock-api";
+import DataSourceNote from "@/components/DataSourceNote";
 import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets, Wrench, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -15,6 +16,11 @@ export default function MapExplorer() {
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [metrics, setMetrics] = useState<{ floodReports: number; ecologicalObservations: number } | null>(null);
+
+  useEffect(() => {
+    getDashboardMetrics().then(m => setMetrics(m));
+  }, []);
 
   const toggleLayer = useCallback((layer: LayerType) => {
     setActiveLayers(prev =>
@@ -108,8 +114,8 @@ export default function MapExplorer() {
           {/* Bottom stats */}
           <div className="absolute bottom-4 right-[calc(380px+16px)] z-[1000] flex gap-2" style={{ right: sidebarOpen ? "396px" : "16px" }}>
             {[
-              { icon: Droplets, label: "Reports", value: String(dashboardData.floodReports), color: "text-geo-blue" },
-              { icon: TreePine, label: "Observations", value: String(dashboardData.ecologicalObservations), color: "text-geo-green" },
+              { icon: Droplets, label: "Reports", value: String(metrics?.floodReports ?? "…"), color: "text-geo-blue" },
+              { icon: TreePine, label: "Observations", value: String(metrics?.ecologicalObservations ?? "…"), color: "text-geo-green" },
             ].map(m => (
               <div key={m.label} className="glass-panel px-2.5 py-1.5 flex items-center gap-2">
                 <m.icon size={11} className={m.color} />

@@ -1,16 +1,15 @@
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { zones } from "@/data/zones";
-import dashboardData from "@/data/dashboard.json";
+import { type Zone } from "@/data/zones";
 import { motion } from "framer-motion";
-import { TrendingUp, Droplets, TreePine, Users, MapPin, AlertTriangle, Zap, Target, ArrowRight, Maximize2, Shield, BarChart3 } from "lucide-react";
+import { TrendingUp, Droplets, TreePine, Users, MapPin, AlertTriangle, Zap, Target, ArrowRight, Maximize2, Shield, BarChart3, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import ZoneBadge from "@/components/ZoneBadge";
+import DataSourceNote from "@/components/DataSourceNote";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getDashboardMetrics, getZones } from "@/api/mock-api";
 import floodImg from "@/assets/flooding-street.jpg";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
-
-const sorted = [...zones].sort((a, b) => b.priorityScore - a.priorityScore);
-const highRisk = dashboardData.highRiskZones;
-const avgScore = dashboardData.avgPriorityScore;
 
 const getScoreColor = (s: number) =>
   s >= 85 ? "text-destructive" : s >= 75 ? "text-geo-amber" : "text-geo-green";
@@ -18,6 +17,59 @@ const getScoreBg = (s: number) =>
   s >= 85 ? "bg-destructive/8" : s >= 75 ? "bg-geo-amber/8" : "bg-geo-green/8";
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState<Awaited<ReturnType<typeof getDashboardMetrics>> | null>(null);
+  const [zones, setZones] = useState<Zone[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      const [m, z] = await Promise.all([getDashboardMetrics(), getZones()]);
+      if (!cancelled) {
+        setMetrics(m);
+        setZones(z);
+        setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const sorted = [...zones].sort((a, b) => b.priorityScore - a.priorityScore);
+
+  if (loading || !metrics) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto py-8 px-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Skeleton className="h-5 w-5 rounded-full" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+          <div className="text-center py-12">
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-sm text-muted-foreground"
+            >
+              Analyzing environmental data…
+            </motion.div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const highRisk = metrics.highRiskZones;
+  const avgScore = metrics.avgPriorityScore;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -43,10 +95,10 @@ export default function Dashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: AlertTriangle, label: "High-Risk Zones", value: String(dashboardData.highRiskZones), color: "text-destructive", bg: "bg-destructive/8", border: "border-destructive/15" },
-            { icon: Target, label: "Priority Zones", value: String(dashboardData.priorityZones), color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
-            { icon: Droplets, label: "Flood Reports", value: String(dashboardData.floodReports), color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
-            { icon: TreePine, label: "Eco Observations", value: String(dashboardData.ecologicalObservations), color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
+            { icon: AlertTriangle, label: "High-Risk Zones", value: String(highRisk), color: "text-destructive", bg: "bg-destructive/8", border: "border-destructive/15" },
+            { icon: Target, label: "Priority Zones", value: String(metrics.priorityZones), color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
+            { icon: Droplets, label: "Flood Reports", value: String(metrics.report_summary.flood), color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
+            { icon: TreePine, label: "Eco Observations", value: String(metrics.report_summary.ecological), color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
           ].map((m, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
               className={`p-4 rounded-xl bg-white border ${m.border}`}>
@@ -77,17 +129,17 @@ export default function Dashboard() {
               <Users size={18} className="text-geo-amber" />
             </div>
             <div>
-              <div className="text-lg font-bold font-mono text-geo-amber">~{Math.round(dashboardData.exposedPopulation / 1000)}K</div>
+              <div className="text-lg font-bold font-mono text-geo-amber">~{Math.round(metrics.exposedPopulation / 1000)}K</div>
               <div className="text-[10px] text-muted-foreground">Exposed Population</div>
             </div>
           </div>
           <div className="glass-panel-sm p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-geo-green/8 flex items-center justify-center">
-              <Maximize2 size={18} className="text-geo-green" />
+              <Leaf size={18} className="text-geo-green" />
             </div>
             <div>
-              <div className="text-lg font-bold font-mono text-geo-green">{dashboardData.totalPriorityAreaHa} ha</div>
-              <div className="text-[10px] text-muted-foreground">Total Priority Area</div>
+              <div className="text-lg font-bold font-mono text-geo-green">{metrics.mangrove_summary.total_functional_ha.toFixed(1)} ha</div>
+              <div className="text-[10px] text-muted-foreground">Functional Mangrove</div>
             </div>
           </div>
         </div>
@@ -106,8 +158,8 @@ export default function Dashboard() {
             <img src={mangroveImg} alt="Mangrove restoration opportunity" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-foreground/60 to-transparent" />
             <div className="absolute bottom-3 left-4 text-white">
-              <div className="text-lg font-bold">{zones.filter(z => z.viability.ecologicalViability === "High").length}</div>
-              <div className="text-[11px] opacity-80">High ecological opportunity zones</div>
+              <div className="text-lg font-bold">{metrics.mangrove_summary.total_degraded_ha.toFixed(1)} ha</div>
+              <div className="text-[11px] opacity-80">Degraded mangrove requiring action</div>
             </div>
           </div>
         </div>
@@ -234,8 +286,13 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Data source note */}
+        <div className="mt-8 mb-4">
+          <DataSourceNote />
+        </div>
+
         {/* Quick actions footer */}
-        <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/15 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-6 rounded-xl bg-primary/5 border border-primary/15 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold mb-1">Help improve the analysis</h3>
             <p className="text-xs text-muted-foreground">Every flood report and ecological observation strengthens priority scoring.</p>
