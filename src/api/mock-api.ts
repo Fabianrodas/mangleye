@@ -6,7 +6,7 @@
 
 import { zones, type Zone, type LayerType } from "@/data/zones";
 import zonesMockData from "@/data/zones.mock.json";
-import mangroveData from "@/data/mangroves.mock.geojson";
+import mangroveData from "@/data/mangroves.mock.json";
 import reportsData from "@/data/reports.mock.json";
 import layersData from "@/data/layers.mock.json";
 import dashboardData from "@/data/dashboard.json";
