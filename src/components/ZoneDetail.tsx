@@ -29,11 +29,12 @@ const ScoreBar = ({ label, value, max }: { label: string; value: number; max: nu
   );
 };
 
-type TabId = "overview" | "risk" | "ecology" | "community";
+type TabId = "overview" | "risk" | "ecology" | "actions" | "community";
 const tabs: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "risk", label: "Risk" },
   { id: "ecology", label: "Ecology" },
+  { id: "actions", label: "Actions" },
   { id: "community", label: "Community" },
 ];
 
@@ -133,14 +134,10 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
               {activeTab === "overview" && <OverviewTab zone={zone} />}
               {activeTab === "risk" && <RiskTab zone={zone} />}
               {activeTab === "ecology" && <EcologyTab zone={zone} />}
+              {activeTab === "actions" && <ActionsTab zone={zone} />}
               {activeTab === "community" && <CommunityTab zone={zone} />}
             </motion.div>
           </AnimatePresence>
-
-          {/* Actions - Always visible */}
-          <div className="border-t border-primary/15 pt-3">
-            <ActionsTab zone={zone} />
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
