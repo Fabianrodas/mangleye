@@ -7,15 +7,13 @@ import ZoneDetail, { ActionsTab } from "@/components/ZoneDetail";
 import { AnimatePresence, motion } from "framer-motion";
 import { type Zone, type LayerType } from "@/data/zones";
 import { getDashboardMetrics } from "@/api/mock-api";
-import DataSourceNote from "@/components/DataSourceNote";
-import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets, Wrench, ChevronDown, ChevronUp } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Layers, ChevronLeft, ChevronRight, Search, TreePine, Droplets, Wrench, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function MapExplorer() {
   const [activeLayers, setActiveLayers] = useState<LayerType[]>([]);
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [actionsOpen, setActionsOpen] = useState(false);
   const [metrics, setMetrics] = useState<{ floodReports: number; ecologicalObservations: number } | null>(null);
 
   useEffect(() => {
@@ -27,6 +25,10 @@ export default function MapExplorer() {
       prev.includes(layer) ? prev.filter(l => l !== layer) : [...prev, layer]
     );
   }, []);
+
+  useEffect(() => {
+    if (selectedZone) setActionsOpen(true);
+  }, [selectedZone?.id]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -53,7 +55,7 @@ export default function MapExplorer() {
             </div>
             <LayerFilters activeLayers={activeLayers} onToggle={toggleLayer} />
 
-            {/* Actions panel - collapsible, below layers */}
+            {/* Actions panel - always open when zone is selected */}
             <AnimatePresence>
               {selectedZone && (
                 <motion.div
@@ -61,54 +63,47 @@ export default function MapExplorer() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="w-[300px]"
+                  className="w-[340px]"
                 >
                   <button
-                    onClick={() => setActionsOpen(p => !p)}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-white/95 backdrop-blur-lg border border-border/60 rounded-lg shadow-sm hover:bg-secondary/30 transition-colors"
+                    type="button"
+                    onClick={() => setActionsOpen(prev => !prev)}
+                    className={`w-full flex items-center justify-between px-4 py-3 bg-geo-green border border-geo-green shadow-sm text-white transition-all ${actionsOpen ? "rounded-t-xl" : "rounded-xl"}`}
                   >
-                    <span className="flex items-center gap-2">
-                      <Wrench size={12} className="text-geo-amber" />
-                      <span className="text-xs font-semibold">Actions · {selectedZone.name}</span>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
+                        <Wrench size={13} className="text-geo-green" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold uppercase tracking-wide">Recommended Action Plan</span>
+                        <span className="block text-xs truncate">{selectedZone.name}</span>
+                      </span>
                     </span>
-                    {actionsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${selectedZone.priorityScore >= 85 ? "bg-destructive text-white" : "bg-geo-amber text-foreground"}`}>
+                      {selectedZone.priorityScore >= 85 ? "URGENT" : "HIGH"}
+                    </span>
+                    <span className="ml-2 shrink-0">
+                      {actionsOpen ? <ChevronUp size={14} className="text-white" /> : <ChevronDown size={14} className="text-white" />}
+                    </span>
                   </button>
-                  <AnimatePresence>
+
+                  <AnimatePresence initial={false}>
                     {actionsOpen && (
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
+                        key="actions-content"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.22, ease: "easeInOut" }}
+                        className="bg-secondary border border-t-0 border-geo-green rounded-b-xl shadow-sm p-3 max-h-[360px] overflow-y-auto"
                       >
-                        <div className="mt-1 bg-white/95 backdrop-blur-lg border border-border/60 rounded-lg shadow-sm p-3 max-h-[320px] overflow-y-auto">
-                          <ActionsTab zone={selectedZone} />
-                        </div>
+                        <ActionsTab zone={selectedZone} />
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-
-          {/* Quick actions */}
-          <div className="absolute bottom-4 left-3 z-[1000] flex gap-2">
-            <Link
-              to="/report/flood"
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-destructive text-white text-[13px] font-bold rounded-lg shadow-lg hover:bg-destructive/90 transition-colors"
-            >
-              <AlertTriangle size={14} />
-              Report Flood
-            </Link>
-            <Link
-              to="/report/ecological"
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-geo-green text-white text-[13px] font-bold rounded-lg shadow-lg hover:bg-geo-green/90 transition-colors"
-            >
-              <TreePine size={14} />
-              Observation
-            </Link>
           </div>
 
           {/* Bottom stats */}
