@@ -136,11 +136,6 @@ export default function ZoneDetail({ zone, onClose }: ZoneDetailProps) {
               {activeTab === "community" && <CommunityTab zone={zone} />}
             </motion.div>
           </AnimatePresence>
-
-          {/* Actions - Always visible separate section */}
-          <div className="border-t border-primary/15 pt-3">
-            <ActionsTab zone={zone} />
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
