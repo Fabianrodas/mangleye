@@ -1,0 +1,46 @@
+{
+  "layers": [
+    {
+      "id": "mangrove-2018",
+      "label": "Guayas Mangrove 2018",
+      "file": "guayas_mangrove_2018.geojson",
+      "type": "mangrove_extent",
+      "year": 2018
+    },
+    {
+      "id": "mangrove-2020",
+      "label": "Guayas Mangrove 2020",
+      "file": "guayas_mangrove_2020.geojson",
+      "type": "mangrove_extent",
+      "year": 2020
+    },
+    {
+      "id": "mangrove-2022",
+      "label": "Guayas Mangrove 2022",
+      "file": "guayas_mangrove_2022.geojson",
+      "type": "mangrove_extent",
+      "year": 2022
+    },
+    {
+      "id": "change-2018-2020",
+      "label": "Guayas Change 2018\u20132020",
+      "file": "guayas_change_2018_2020.geojson",
+      "type": "mangrove_change",
+      "period": "2018-2020"
+    },
+    {
+      "id": "change-2020-2022",
+      "label": "Guayas Change 2020\u20132022",
+      "file": "guayas_change_2020_2022.geojson",
+      "type": "mangrove_change",
+      "period": "2020-2022"
+    },
+    {
+      "id": "change-ecuador-coast-2018-2022",
+      "label": "Ecuador Coast Change 2018\u20132022",
+      "file": "ecuador_coast_change_2018_2022.geojson",
+      "type": "mangrove_change",
+      "period": "2018-2022"
+    }
+  ]
+}
