@@ -1,48 +1,47 @@
 import { motion, useInView } from "framer-motion";
-import { Shield, Droplets, TreePine, Waves } from "lucide-react";
+import { Waves, Wind, DollarSign, Users } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
-import mangroveImg from "@/assets/mangrove-estuary.jpg";
 
 const metrics = [
   {
-    icon: Shield,
-    value: 60,
+    icon: Waves,
+    value: 27.6,
     suffix: "%",
-    title: "Natural flood buffering lost",
-    desc: "Mangrove barriers replaced by concrete",
+    title: "Mangrove loss in Ecuador",
+    desc: "Ecuador lost 27.6% of its mangrove forests between 1970 and 1990 due to shrimp farming and urban expansion.",
     color: "text-destructive",
     glow: "hsl(var(--destructive))",
-    x: "8%", y: "18%",
+    x: "6%", y: "15%",
   },
   {
-    icon: Droplets,
-    value: 78,
+    icon: Wind,
+    value: 66,
     suffix: "%",
-    title: "Soil permeability eliminated",
-    desc: "Impervious surfaces prevent absorption",
+    title: "Wave energy reduction",
+    desc: "Mangrove ecosystems can reduce wave energy by up to 66%, helping buffer coastal flooding.",
     color: "text-geo-blue",
     glow: "hsl(var(--geo-blue))",
-    x: "62%", y: "12%",
+    x: "58%", y: "12%",
   },
   {
-    icon: Waves,
-    value: 85,
+    icon: DollarSign,
+    value: 9,
     suffix: "%",
-    title: "Water absorption gone",
-    desc: "Ecological sponge has collapsed",
+    title: "Increased economic damage",
+    desc: "Without mangroves, global flood-related damage to property would increase by around 9% annually.",
     color: "text-geo-amber",
     glow: "hsl(var(--geo-amber))",
-    x: "6%", y: "62%",
+    x: "5%", y: "60%",
   },
   {
-    icon: TreePine,
-    value: 40,
+    icon: Users,
+    value: 28,
     suffix: "%",
-    title: "Ecological continuity broken",
-    desc: "Fragmented corridors can't regulate water",
+    title: "Population exposure",
+    desc: "Without mangroves, up to 28% more people would be exposed to flooding each year.",
     color: "text-geo-green",
     glow: "hsl(var(--geo-green))",
-    x: "58%", y: "65%",
+    x: "55%", y: "62%",
   },
 ];
 
@@ -54,12 +53,14 @@ function CountUp({ target, suffix, inView }: { target: number; suffix: string; i
     let frame: number;
     const duration = 1800;
     const start = performance.now();
+    const isDecimal = target % 1 !== 0;
 
     function tick(now: number) {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * target));
+      const val = eased * target;
+      setCount(isDecimal ? Math.round(val * 10) / 10 : Math.round(val));
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
 
@@ -97,12 +98,11 @@ export default function WhatThisAreaLost() {
           className="relative rounded-2xl overflow-hidden shadow-2xl"
         >
           <img
-            src={mangroveImg}
+            src="https://images.unsplash.com/photo-1596587048750-e2af27fded49?w=1600&q=80"
             alt="Mangrove estuary system in Guayaquil"
             className="w-full aspect-[16/9] md:aspect-[21/9] object-cover"
             loading="lazy"
           />
-          {/* Dark overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-foreground/10" />
 
           {/* Floating metrics */}
@@ -116,10 +116,9 @@ export default function WhatThisAreaLost() {
               style={{ left: m.x, top: m.y }}
             >
               <div
-                className="relative p-3 md:p-4 rounded-xl backdrop-blur-md border border-white/15 shadow-xl"
+                className="relative p-3 md:p-4 rounded-xl backdrop-blur-md border border-white/15 shadow-xl max-w-[200px]"
                 style={{ background: "rgba(0,0,0,0.55)" }}
               >
-                {/* Glow */}
                 <div
                   className="absolute -inset-1 rounded-xl opacity-20 blur-md -z-10"
                   style={{ background: m.glow }}
@@ -132,12 +131,11 @@ export default function WhatThisAreaLost() {
                   </span>
                 </div>
                 <p className="text-[11px] md:text-xs font-semibold text-white/90 leading-tight">{m.title}</p>
-                <p className="text-[9px] md:text-[10px] text-white/50 mt-0.5 hidden md:block">{m.desc}</p>
+                <p className="text-[9px] md:text-[10px] text-white/50 mt-0.5 hidden md:block leading-snug">{m.desc}</p>
               </div>
             </motion.div>
           ))}
 
-          {/* Bottom caption */}
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
             <p className="text-white/70 text-xs font-medium">
               Mangrove estuary — Guayaquil's natural flood defense

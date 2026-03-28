@@ -34,8 +34,7 @@ export default function CitizenPipeline() {
             From citizen report to real action
           </h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            Your report feeds a system that prioritizes intervention where it
-            matters most.
+            Citizen reports complement satellite data by capturing localized flooding patterns not always visible in remote sensing.
           </p>
         </motion.div>
 

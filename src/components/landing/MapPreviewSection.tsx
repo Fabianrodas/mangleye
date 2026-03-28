@@ -152,8 +152,11 @@ export default function MapPreviewSection() {
               Risk is already there.<br />
               <span className="text-muted-foreground">You just can't see it yet.</span>
             </h2>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
               Our system continuously maps flood zones, ecological edges, citizen reports, and priority areas — revealing what's invisible to the naked eye.
+            </p>
+            <p className="text-[10px] text-muted-foreground/70 italic mb-6">
+              Simulated environmental analysis based on satellite-derived mangrove datasets and spatial flood risk models.
             </p>
 
             <div className="space-y-3 mb-6">
