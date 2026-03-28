@@ -99,7 +99,7 @@ export default function WhatThisAreaLost() {
         >
           {/* Background image — absolute fill */}
           <img
-            src="https://images.unsplash.com/photo-1596587048750-e2af27fded49?w=1600&q=80"
+            src="https://www.elcomercio.com/wp-content/uploads/2021/08/manglar.jpg"
             alt="Mangrove estuary system in Guayaquil"
             className="absolute inset-0 w-full h-full object-cover"
           />
