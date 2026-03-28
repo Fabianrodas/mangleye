@@ -9,8 +9,8 @@ import floodImg from "@/assets/flooding-street.jpg";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
 
 const sorted = [...zones].sort((a, b) => b.priorityScore - a.priorityScore);
-const highRisk = zones.filter(z => z.floodLevel === "High").length;
-const avgScore = Math.round(zones.reduce((s, z) => s + z.priorityScore, 0) / zones.length);
+const highRisk = dashboardData.highRiskZones;
+const avgScore = dashboardData.avgPriorityScore;
 
 const getScoreColor = (s: number) =>
   s >= 85 ? "text-destructive" : s >= 75 ? "text-geo-amber" : "text-geo-green";
