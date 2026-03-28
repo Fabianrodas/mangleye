@@ -42,10 +42,10 @@ export default function Dashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: AlertTriangle, label: "High-Risk Zones", value: String(highRisk), color: "text-destructive", bg: "bg-destructive/8", border: "border-destructive/15" },
-            { icon: Target, label: "Priority Zones", value: String(zones.length), color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
-            { icon: Droplets, label: "Flood Reports", value: "127", color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
-            { icon: TreePine, label: "Eco Observations", value: "43", color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
+            { icon: AlertTriangle, label: "High-Risk Zones", value: String(dashboardData.highRiskZones), color: "text-destructive", bg: "bg-destructive/8", border: "border-destructive/15" },
+            { icon: Target, label: "Priority Zones", value: String(dashboardData.priorityZones), color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
+            { icon: Droplets, label: "Flood Reports", value: String(dashboardData.floodReports), color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
+            { icon: TreePine, label: "Eco Observations", value: String(dashboardData.ecologicalObservations), color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
           ].map((m, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
               className={`p-4 rounded-xl bg-white border ${m.border}`}>
@@ -76,7 +76,7 @@ export default function Dashboard() {
               <Users size={18} className="text-geo-amber" />
             </div>
             <div>
-              <div className="text-lg font-bold font-mono text-geo-amber">~168K</div>
+              <div className="text-lg font-bold font-mono text-geo-amber">~{Math.round(dashboardData.exposedPopulation / 1000)}K</div>
               <div className="text-[10px] text-muted-foreground">Exposed Population</div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function Dashboard() {
               <Maximize2 size={18} className="text-geo-green" />
             </div>
             <div>
-              <div className="text-lg font-bold font-mono text-geo-green">283.6 ha</div>
+              <div className="text-lg font-bold font-mono text-geo-green">{dashboardData.totalPriorityAreaHa} ha</div>
               <div className="text-[10px] text-muted-foreground">Total Priority Area</div>
             </div>
           </div>
