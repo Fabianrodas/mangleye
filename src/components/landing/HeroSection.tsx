@@ -21,7 +21,8 @@ export default function HeroSection() {
   return (
     <section ref={ref} className="relative min-h-[90vh] flex items-end overflow-hidden">
       {/* Parallax aerial image */}
-      <motion.div className="absolute inset-0" style={{ scale: imageScale, y: imageY }}>
+      {/* Parallax aerial image with uniform soft atmospheric treatment */}
+      <motion.div className="absolute inset-0 blur-[1.5px]" style={{ scale: imageScale, y: imageY }}>
         <img
           src={heroImg}
           alt="Aerial view of Guayaquil estuary and urban edge"
@@ -31,11 +32,10 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      {/* Soft cinematic overlays — no hard edges */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,6%)/0.88] via-[hsl(192,18%,6%)/0.5] to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(192,18%,6%)/0.7] via-transparent to-[hsl(192,18%,6%)/0.85] pointer-events-none" />
-      {/* Extra soft fog behind text zone */}
-      <div className="absolute inset-y-0 left-0 w-[60%] bg-gradient-to-r from-[hsl(192,18%,6%)/0.4] to-transparent pointer-events-none backdrop-blur-[2px]" />
+      {/* Gentle left-side gradient for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,6%)/0.75] via-[hsl(192,18%,6%)/0.35] to-transparent pointer-events-none" />
+      {/* Subtle top/bottom vignette */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(192,18%,6%)/0.5] via-transparent to-[hsl(192,18%,6%)/0.7] pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 w-full pb-12 pt-32 px-6">
