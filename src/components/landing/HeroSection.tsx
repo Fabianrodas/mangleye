@@ -33,9 +33,14 @@ export default function HeroSection() {
 
       {/* Dark gradient overlay */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-t from-[hsl(192,18%,8%)] via-[hsl(192,18%,8%)/0.6] to-transparent"
-        style={{ opacity: overlayOpacity }}
+        className="absolute inset-0"
+        style={{
+          opacity: overlayOpacity,
+          background: "linear-gradient(to top, hsl(192 18% 8% / 0.95) 0%, hsl(192 18% 8% / 0.7) 35%, hsl(192 18% 8% / 0.3) 65%, transparent 100%)",
+        }}
       />
+      {/* Extra text-area readability layer */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,8%)/0.5] via-transparent to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 w-full pb-12 pt-32 px-6">
@@ -51,10 +56,10 @@ export default function HeroSection() {
               <span className="text-[11px] font-semibold text-white/90">Active flooding season</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
               Guayaquil didn't just flood.
               <br />
-              <span className="text-geo-cyan">It lost its protective edges.</span>
+              <span className="text-geo-cyan drop-shadow-[0_0_20px_hsl(188,50%,38%,0.4)]">It lost its protective edges.</span>
             </h1>
 
             <p className="text-base md:text-lg text-white/70 mb-8 leading-relaxed max-w-lg">
