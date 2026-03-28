@@ -1,106 +1,103 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Map, Droplets, TreePine, Users, Shield, ArrowRight } from "lucide-react";
+import { AlertTriangle, Map, Droplets, TreePine, Users, Shield } from "lucide-react";
+import { useRef } from "react";
+import heroImg from "@/assets/hero-aerial.jpg";
 
 const stats = [
-  { value: "2,847", label: "Flood reports", icon: Droplets, color: "text-geo-blue" },
-  { value: "438", label: "Eco observations", icon: TreePine, color: "text-geo-green" },
-  { value: "14", label: "Priority zones", icon: Shield, color: "text-geo-amber" },
-  { value: "1,230", label: "Validations", icon: Users, color: "text-primary" },
+  { value: "2,847", label: "Flood reports", icon: Droplets },
+  { value: "438", label: "Eco observations", icon: TreePine },
+  { value: "14", label: "Priority zones", icon: Shield },
+  { value: "1,230", label: "Validations", icon: Users },
 ];
 
 export default function HeroSection() {
-  return (
-    <section className="relative py-16 md:py-24 px-6 overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-accent/3" />
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.55, 0.75]);
 
-      <div className="relative z-10 max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
-          {/* Left: Copy */}
+  return (
+    <section ref={ref} className="relative min-h-[90vh] flex items-end overflow-hidden">
+      {/* Parallax aerial image */}
+      <motion.div className="absolute inset-0" style={{ scale: imageScale, y: imageY }}>
+        <img
+          src={heroImg}
+          alt="Aerial view of Guayaquil estuary and urban edge"
+          className="w-full h-full object-cover"
+          width={1920}
+          height={1080}
+        />
+      </motion.div>
+
+      {/* Dark gradient overlay */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-t from-[hsl(192,18%,8%)] via-[hsl(192,18%,8%)/0.6] to-transparent"
+        style={{ opacity: overlayOpacity }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full pb-12 pt-32 px-6">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="max-w-2xl"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-destructive/8 border border-destructive/15 mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/20 border border-destructive/30 mb-6 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
-              <span className="text-[11px] font-semibold text-destructive">Active flooding season — reports needed</span>
+              <span className="text-[11px] font-semibold text-white/90">Active flooding season</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] mb-4">
-              Greater Guayaquil is flooding.
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white">
+              Guayaquil didn't just flood.
               <br />
-              <span className="text-gradient">Help make it visible.</span>
+              <span className="text-geo-cyan">It lost its protective edges.</span>
             </h1>
 
-            <p className="text-base text-muted-foreground mb-8 leading-relaxed max-w-md">
-              Mangleye maps flood risk and ecological edges using citizen reports. 
-              Report flooding in your area so action reaches where it's needed most.
+            <p className="text-base md:text-lg text-white/70 mb-8 leading-relaxed max-w-lg">
+              Urban growth replaced natural buffers. Water now has nowhere to go. Mangleye maps the damage and the path to restoration.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-10">
               <Link
                 to="/report/flood"
-                className="group px-6 py-3 bg-destructive text-white rounded-lg text-sm font-bold hover:bg-destructive/90 transition-all shadow-md flex items-center gap-2"
+                className="group px-7 py-3.5 bg-destructive text-white rounded-lg text-sm font-bold hover:bg-destructive/90 transition-all shadow-lg flex items-center gap-2"
               >
                 <AlertTriangle size={16} />
                 Report Flooding
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/map"
-                className="px-6 py-3 bg-white text-foreground border border-border rounded-lg text-sm font-semibold hover:bg-secondary/50 transition-colors shadow-sm flex items-center gap-2"
+                className="px-7 py-3.5 bg-white/10 text-white border border-white/20 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm flex items-center gap-2"
               >
-                <Map size={16} className="text-primary" />
+                <Map size={16} />
                 Explore Live Map
               </Link>
             </div>
           </motion.div>
 
-          {/* Right: Stats + activity card */}
+          {/* Stats bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-3"
           >
-            <div className="grid grid-cols-2 gap-3">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 + i * 0.08 }}
-                  className="glass-panel p-4"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <stat.icon size={14} className={stat.color} />
-                    <span className="text-[11px] text-muted-foreground font-medium">{stat.label}</span>
-                  </div>
-                  <div className="text-2xl font-bold font-mono">{stat.value}</div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Recent activity */}
-            <div className="mt-3 glass-panel p-4">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Recent Activity</div>
-              <div className="space-y-2">
-                {[
-                  { text: "Flood reported in Estero Salado – Urdesa", time: "12 min ago", color: "bg-destructive" },
-                  { text: "Ecological observation validated in Isla Trinitaria", time: "34 min ago", color: "bg-geo-green" },
-                  { text: "New flood report in Guasmo Sur", time: "1 hr ago", color: "bg-geo-blue" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${item.color} mt-1.5 shrink-0`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs truncate">{item.text}</div>
-                      <div className="text-[10px] text-muted-foreground">{item.time}</div>
-                    </div>
-                  </div>
-                ))}
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                className="bg-white/8 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <stat.icon size={13} className="text-white/50" />
+                  <span className="text-[10px] text-white/50 font-medium uppercase tracking-wider">{stat.label}</span>
+                </div>
+                <div className="text-xl md:text-2xl font-bold font-mono text-white">{stat.value}</div>
               </div>
-            </div>
+            ))}
           </motion.div>
         </div>
       </div>

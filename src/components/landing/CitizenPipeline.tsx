@@ -1,107 +1,52 @@
 import { motion } from "framer-motion";
-import { zones } from "@/data/zones";
-import { Link } from "react-router-dom";
-import { MapPin, Droplets, TreePine, ArrowRight, AlertTriangle } from "lucide-react";
-import ZoneBadge from "@/components/ZoneBadge";
+import { MessageSquare, Map, CheckCircle, BarChart3, Building2, TreePine } from "lucide-react";
 
-const featured = [...zones].sort((a, b) => b.priorityScore - a.priorityScore).slice(0, 3);
+const steps = [
+  { icon: MessageSquare, label: "Citizen reports flooding", color: "bg-destructive/10 text-destructive" },
+  { icon: Map, label: "Report appears on live map", color: "bg-geo-blue/10 text-geo-blue" },
+  { icon: CheckCircle, label: "Community validates", color: "bg-primary/10 text-primary" },
+  { icon: BarChart3, label: "Priority score generated", color: "bg-geo-amber/10 text-geo-amber" },
+  { icon: Building2, label: "Municipality coordination", color: "bg-accent/10 text-accent" },
+  { icon: TreePine, label: "Intervention deployed", color: "bg-geo-green/10 text-geo-green" },
+];
 
-const getScoreColor = (s: number) =>
-  s >= 85 ? "text-destructive" : s >= 75 ? "text-geo-amber" : "text-geo-green";
-
-export default function FeaturedZones() {
+export default function CitizenPipeline() {
   return (
-    <section className="py-16 px-6 bg-white border-y border-border/30">
+    <section className="py-20 px-6 bg-white">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
-          className="flex items-end justify-between mb-8"
+          className="text-center mb-12"
         >
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-2">Featured priority zones</h2>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              These zones have the highest urgency scores based on flood risk, ecological degradation, and population exposure.
-            </p>
-          </div>
-          <Link to="/zones" className="hidden md:flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
-            View all <ArrowRight size={14} />
-          </Link>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">From citizen report to real action</h2>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+            Your report feeds a system that prioritizes intervention where it matters most.
+          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          {featured.map((zone, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {steps.map((step, i) => (
             <motion.div
-              key={zone.id}
-              initial={{ opacity: 0, y: 20 }}
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * 0.07 }}
+              className="text-center"
             >
-              <Link to="/map" className="glass-panel p-5 block hover:shadow-md transition-shadow group">
-                {/* Image placeholder */}
-                <div className="aspect-[16/9] rounded-lg mb-4 overflow-hidden relative" style={{
-                  background: `linear-gradient(135deg, ${
-                    zone.floodLevel === "High" ? "hsl(6 62% 44% / 0.1)" : "hsl(38 80% 48% / 0.1)"
-                  }, ${
-                    zone.badges.includes("Revegetate") ? "hsl(158 45% 34% / 0.1)" : "hsl(200 42% 38% / 0.1)"
-                  })`
-                }}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <MapPin size={24} className="text-muted-foreground/30 mx-auto mb-1" />
-                      <span className="text-[10px] text-muted-foreground/40 font-medium">{zone.area}</span>
-                    </div>
-                  </div>
-                  <div className="absolute top-2 right-2">
-                    <span className={`text-lg font-bold font-mono ${getScoreColor(zone.priorityScore)}`}>
-                      {zone.priorityScore}
-                    </span>
-                  </div>
+              <div className="relative mb-3">
+                <div className={`w-12 h-12 rounded-xl mx-auto flex items-center justify-center ${step.color.split(" ")[0]}`}>
+                  <step.icon size={20} className={step.color.split(" ")[1]} />
                 </div>
-
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight">{zone.name}</h3>
-                </div>
-
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-3">
-                  <span className="flex items-center gap-0.5">
-                    <Droplets size={9} />
-                    {zone.floodLevel} flood risk
-                  </span>
-                  <span>·</span>
-                  <span>{zone.zoneType}</span>
-                </div>
-
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {zone.badges.slice(0, 2).map(b => <ZoneBadge key={b} badge={b} />)}
-                </div>
-
-                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
-                  {zone.risk}
-                </p>
-
-                {/* Mock evidence */}
-                <div className="mt-3 pt-3 border-t border-border/30 flex items-center gap-3 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <AlertTriangle size={9} className="text-destructive" />
-                    {12 + i * 8} reports
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <TreePine size={9} className="text-geo-green" />
-                    {4 + i * 3} observations
-                  </span>
-                </div>
-              </Link>
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-foreground text-white text-[9px] font-bold flex items-center justify-center">
+                  {i + 1}
+                </span>
+              </div>
+              <p className="text-xs font-medium leading-snug">{step.label}</p>
             </motion.div>
           ))}
-        </div>
-
-        <div className="mt-6 text-center md:hidden">
-          <Link to="/zones" className="text-sm font-semibold text-primary hover:underline">
-            View all priority zones →
-          </Link>
         </div>
       </div>
     </section>
