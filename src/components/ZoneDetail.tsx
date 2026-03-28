@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type Zone } from "@/data/zones";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Sprout, Users, Maximize2, X, Droplets, BrainCircuit, TreePine, CheckCircle2, ArrowRight, Shield, Eye, Wrench, Zap, MessageSquare, Camera, ThumbsUp, MapPin } from "lucide-react";
 import ZoneBadge from "./ZoneBadge";
 import type { RiskLevel } from "@/data/zones";
 import { Link } from "react-router-dom";
+import { getReportsByZone, getZoneAnalysis, type CitizenReport, type ZoneAnalysis } from "@/api/mock-api";
+import { Skeleton } from "./ui/skeleton";
+import DataSourceNote from "./DataSourceNote";
 
 interface ZoneDetailProps {
   zone: Zone | null;
@@ -324,11 +327,23 @@ export function ActionsTab({ zone }: { zone: Zone }) {
 }
 
 function CommunityTab({ zone }: { zone: Zone }) {
-  const recentReports = [
-    { type: "flood", text: "Severe flooding on main road", date: "2 days ago", user: "Anonymous", validated: 5 },
-    { type: "flood", text: "Drainage overflow near school", date: "4 days ago", user: "Citizen", validated: 12 },
-    { type: "ecological", text: "Mangrove regrowth spotted", date: "1 week ago", user: "Volunteer", validated: 8 },
-  ];
+  const [reports, setReports] = useState<CitizenReport[]>([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingReports(true);
+    getReportsByZone(zone.id).then(r => {
+      if (!cancelled) { setReports(r); setLoadingReports(false); }
+    });
+    return () => { cancelled = true; };
+  }, [zone.id]);
+
+  const formatDate = (ts: string) => {
+    const d = new Date(ts);
+    const days = Math.round((Date.now() - d.getTime()) / 86400000);
+    return days <= 1 ? "Today" : days < 7 ? `${days} days ago` : `${Math.round(days / 7)} weeks ago`;
+  };
 
   return (
     <div className="space-y-3">
@@ -355,33 +370,49 @@ function CommunityTab({ zone }: { zone: Zone }) {
         </div>
       </div>
 
-      {/* Recent Reports */}
+      {/* Recent Reports - from API */}
       <div className="p-3 rounded-lg border border-border/40 bg-white">
         <div className="flex items-center gap-1.5 mb-2">
           <MessageSquare size={11} className="text-geo-blue" />
           <span className="text-[10px] font-semibold uppercase text-geo-blue">Recent Reports</span>
-          <span className="ml-auto text-[10px] font-mono text-muted-foreground">{recentReports.length}</span>
+          <span className="ml-auto text-[10px] font-mono text-muted-foreground">{loadingReports ? "…" : reports.length}</span>
         </div>
-        <div className="space-y-1.5">
-          {recentReports.map((report, i) => (
-            <div key={i} className="flex items-start gap-2 p-2 rounded bg-secondary/30">
-              {report.type === "flood" ? (
-                <Droplets size={11} className="text-geo-blue shrink-0 mt-0.5" />
-              ) : (
-                <TreePine size={11} className="text-geo-green shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-medium">{report.text}</div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-muted-foreground">{report.date}</span>
-                  <span className="flex items-center gap-0.5 text-[10px] text-primary">
-                    <ThumbsUp size={8} /> {report.validated} validated
-                  </span>
+        {loadingReports ? (
+          <div className="space-y-1.5">
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 rounded" />)}
+          </div>
+        ) : reports.length === 0 ? (
+          <p className="text-[11px] text-muted-foreground italic">No citizen reports for this zone yet.</p>
+        ) : (
+          <div className="space-y-1.5">
+            {reports.slice(0, 5).map((report) => (
+              <div key={report.id} className="flex items-start gap-2 p-2 rounded bg-secondary/30">
+                {report.type === "flood" ? (
+                  <Droplets size={11} className="text-geo-blue shrink-0 mt-0.5" />
+                ) : (
+                  <TreePine size={11} className="text-geo-green shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-medium">{report.description}</div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-muted-foreground">{formatDate(report.timestamp)}</span>
+                    {report.severity === "critical" && (
+                      <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-destructive/12 text-destructive uppercase">Critical</span>
+                    )}
+                    {report.water_height_cm && (
+                      <span className="text-[10px] text-geo-blue font-mono">{report.water_height_cm}cm</span>
+                    )}
+                    {report.verified && (
+                      <span className="flex items-center gap-0.5 text-[10px] text-primary">
+                        <ThumbsUp size={8} /> verified
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Community Checklist */}
@@ -396,6 +427,8 @@ function CommunityTab({ zone }: { zone: Zone }) {
           ))}
         </div>
       </div>
+
+      <DataSourceNote />
     </div>
   );
 }

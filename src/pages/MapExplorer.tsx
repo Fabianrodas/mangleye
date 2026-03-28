@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "@/components/Header";
 import MapView from "@/components/MapView";
 import LayerFilters from "@/components/LayerFilters";
@@ -6,7 +6,8 @@ import PriorityPanel from "@/components/PriorityPanel";
 import ZoneDetail, { ActionsTab } from "@/components/ZoneDetail";
 import { AnimatePresence, motion } from "framer-motion";
 import { type Zone, type LayerType } from "@/data/zones";
-import dashboardData from "@/data/dashboard.json";
+import { getDashboardMetrics } from "@/api/mock-api";
+import DataSourceNote from "@/components/DataSourceNote";
 import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets, Wrench, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
