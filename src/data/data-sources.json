@@ -1,0 +1,43 @@
+{
+  "generatedFrom": {
+    "zones.json": {
+      "sourceType": "user-provided TypeScript",
+      "sourceDescription": "Converted from the user's current zones.ts content shared in chat",
+      "notes": "These are prototype-ready structured records, not direct exports from official geospatial datasets."
+    },
+    "species.json": {
+      "sourceType": "user-provided TypeScript",
+      "sourceDescription": "Converted from the user's current species.ts content shared in chat"
+    },
+    "layer-config.json": {
+      "sourceType": "user-provided TypeScript",
+      "sourceDescription": "Converted from the user's current zones.ts layer configuration shared in chat"
+    }
+  },
+  "officialDataSourcesForFutureReplacement": [
+    {
+      "name": "Global Mangrove Watch Version 3.0",
+      "url": "https://zenodo.org/records/6894273",
+      "useFor": ["mangrove extent", "change over time", "country statistics"],
+      "notes": "Provides vector and raster files for multiple years between 1996 and 2020."
+    },
+    {
+      "name": "NASA Global Mangrove Distribution, Aboveground Biomass, and Canopy Height v1.3",
+      "url": "https://www.earthdata.nasa.gov/data/catalog/ornl-cloud-cms-global-map-mangrove-canopy-1665-1.3",
+      "useFor": ["biomass", "canopy height", "baseline mangrove structure"],
+      "notes": "30-meter global mangrove map, 349 granules via Earthdata Search."
+    },
+    {
+      "name": "SERVIR Amazonia / Monitoring of the Mangrove Ecosystem on the Coast of Ecuador (2018–2022)",
+      "url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/RDTUZC",
+      "useFor": ["Ecuador coastal mangrove cover", "gain/loss 2018-2022"],
+      "notes": "User-provided link; the site did not fully load in this session."
+    },
+    {
+      "name": "Monitoring of the Mangrove Ecosystem in the Province of Guayas–Ecuador (2018–2022) v1.1",
+      "url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FJDJSY",
+      "useFor": ["Guayas-focused mangrove cover", "2018/2020/2022 change intervals"],
+      "notes": "User-provided link; the site returned an internal error in this session."
+    }
+  ]
+}
