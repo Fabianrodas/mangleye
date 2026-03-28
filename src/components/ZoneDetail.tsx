@@ -264,7 +264,7 @@ function EcologyTab({ zone }: { zone: Zone }) {
   );
 }
 
-function ActionsTab({ zone }: { zone: Zone }) {
+export function ActionsTab({ zone }: { zone: Zone }) {
   const [completed, setCompleted] = useState<Set<number>>(new Set());
   const toggle = (i: number) => {
     setCompleted(prev => {
