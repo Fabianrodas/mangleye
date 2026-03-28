@@ -13,6 +13,7 @@ export default function MapExplorer() {
   const [activeLayers, setActiveLayers] = useState<LayerType[]>([]);
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   const toggleLayer = useCallback((layer: LayerType) => {
     setActiveLayers(prev =>
