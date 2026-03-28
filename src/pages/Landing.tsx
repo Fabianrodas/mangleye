@@ -1,10 +1,12 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/landing/HeroSection";
-import WhyItMatters from "@/components/landing/BeforeAfterIsometric";
-import HowToParticipate from "@/components/landing/AreaLostSection";
-import ReportToAction from "@/components/landing/WaterFlowDiagram";
-import MapPreview from "@/components/landing/SystemDecision";
-import FeaturedZones from "@/components/landing/CitizenPipeline";
+import BeforeAfterSection from "@/components/landing/BeforeAfterIsometric";
+import WhatThisAreaLost from "@/components/landing/AreaLostSection";
+import WaterFlowStory from "@/components/landing/WaterFlowDiagram";
+import SystemDecision from "@/components/landing/SystemDecision";
+import CitizenPipeline from "@/components/landing/CitizenPipeline";
+import MapPreviewSection from "@/components/landing/MapPreviewSection";
+import FeaturedZonesSection from "@/components/landing/FeaturedZonesSection";
 import { Link } from "react-router-dom";
 import { Leaf, AlertTriangle, Map } from "lucide-react";
 
@@ -13,30 +15,32 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       <Header />
       <HeroSection />
-      <WhyItMatters />
-      <HowToParticipate />
-      <ReportToAction />
-      <MapPreview />
-      <FeaturedZones />
+      <BeforeAfterSection />
+      <WhatThisAreaLost />
+      <WaterFlowStory />
+      <SystemDecision />
+      <CitizenPipeline />
+      <MapPreviewSection />
+      <FeaturedZonesSection />
 
       {/* Final CTA */}
-      <section className="py-16 px-6">
+      <section className="py-20 px-6 bg-gradient-to-b from-background to-primary/5">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">Take action now</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">From hidden risk to visible action</h2>
           <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
             Every flood report strengthens the platform. Every observation makes the invisible visible.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/report/flood"
-              className="px-8 py-3.5 bg-destructive text-white rounded-lg text-sm font-bold hover:bg-destructive/90 transition-all shadow-md flex items-center gap-2"
+              className="px-8 py-3.5 bg-destructive text-white rounded-lg text-sm font-bold hover:bg-destructive/90 transition-all shadow-lg flex items-center gap-2"
             >
               <AlertTriangle size={16} />
               Report Flooding
             </Link>
             <Link
               to="/map"
-              className="px-8 py-3.5 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-md flex items-center gap-2"
+              className="px-8 py-3.5 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-lg flex items-center gap-2"
             >
               <Map size={16} />
               Explore Live Map

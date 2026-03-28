@@ -1,94 +1,99 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, Camera, TreePine, CheckCircle, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Shield, Droplets, TreePine, Waves } from "lucide-react";
+import mangroveImg from "@/assets/mangrove-estuary.jpg";
 
-const actions = [
+const losses = [
   {
-    icon: AlertTriangle,
-    title: "Report flooding",
-    desc: "Document flooding with location, severity, and photos. Every report strengthens the analysis.",
+    icon: Shield,
+    stat: "60%",
+    title: "Natural flood buffering lost",
+    desc: "Mangrove barriers that absorbed tidal surges have been replaced by concrete walls.",
     color: "text-destructive",
-    bg: "bg-destructive/8",
-    link: "/report/flood",
-    cta: "Report now",
   },
   {
-    icon: Camera,
-    title: "Upload evidence",
-    desc: "Add photo documentation to existing reports or new observations. Visual proof accelerates response.",
+    icon: Droplets,
+    stat: "78%",
+    title: "Soil permeability eliminated",
+    desc: "Impervious urban surfaces prevent rainfall from being absorbed into the ground.",
     color: "text-geo-blue",
-    bg: "bg-geo-blue/8",
-    link: "/report/flood",
-    cta: "Add photos",
+  },
+  {
+    icon: Waves,
+    stat: "85%",
+    title: "Water absorption capacity gone",
+    desc: "The ecological sponge between city and estuary has collapsed.",
+    color: "text-geo-amber",
   },
   {
     icon: TreePine,
-    title: "Add ecological observation",
-    desc: "Document mangrove conditions, water edges, and wildlife sightings to build the ecological baseline.",
+    stat: "40%",
+    title: "Ecological continuity broken",
+    desc: "Fragmented vegetation corridors can no longer support species or water regulation.",
     color: "text-geo-green",
-    bg: "bg-geo-green/8",
-    link: "/report/ecological",
-    cta: "Submit observation",
-  },
-  {
-    icon: CheckCircle,
-    title: "Validate nearby reports",
-    desc: "Confirm reports in your neighborhood. Community-validated data gets prioritized for action.",
-    color: "text-primary",
-    bg: "bg-primary/8",
-    link: "/community",
-    cta: "Validate reports",
-  },
-  {
-    icon: MapPin,
-    title: "Explore your area",
-    desc: "Check your neighborhood's flood risk, ecological status, and what interventions are being planned.",
-    color: "text-accent",
-    bg: "bg-accent/8",
-    link: "/map",
-    cta: "Open map",
   },
 ];
 
-export default function HowToParticipate() {
+export default function WhatThisAreaLost() {
   return (
-    <section className="py-16 px-6">
+    <section className="py-20 px-6">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          className="mb-10"
-        >
-          <h2 className="text-xl md:text-2xl font-bold mb-2">How you can participate</h2>
-          <p className="text-sm text-muted-foreground max-w-lg">
-            Mangleye turns citizen observations into prioritized action. Here's how you help.
-          </p>
-        </motion.div>
+        <div className="grid md:grid-cols-2 gap-10 items-center">
+          {/* Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-2xl overflow-hidden shadow-lg"
+          >
+            <img
+              src={mangroveImg}
+              alt="Mangrove estuary system in Guayaquil"
+              className="w-full aspect-[4/3] object-cover"
+              loading="lazy"
+              width={1200}
+              height={800}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <p className="text-white text-xs font-medium">Mangrove estuary buffer — the city's natural defense system</p>
+            </div>
+          </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {actions.map((action, i) => (
+          {/* Stats */}
+          <div>
             <motion.div
-              key={i}
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="glass-panel p-5 flex flex-col"
+              viewport={{ once: true, margin: "-60px" }}
+              className="mb-6"
             >
-              <div className={`w-9 h-9 rounded-lg ${action.bg} flex items-center justify-center mb-3`}>
-                <action.icon size={18} className={action.color} />
-              </div>
-              <h3 className="text-sm font-semibold mb-1">{action.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{action.desc}</p>
-              <Link
-                to={action.link}
-                className={`text-xs font-semibold ${action.color} hover:underline`}
-              >
-                {action.cta} →
-              </Link>
+              <h2 className="text-2xl md:text-3xl font-bold mb-2">What this area lost</h2>
+              <p className="text-sm text-muted-foreground">
+                Two decades of unchecked urbanization have stripped Guayaquil's natural defenses.
+              </p>
             </motion.div>
-          ))}
+
+            <div className="space-y-3">
+              {losses.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-white"
+                >
+                  <div className={`text-3xl font-bold font-mono ${item.color} shrink-0 w-14 text-right`}>
+                    {item.stat}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold mb-0.5">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
