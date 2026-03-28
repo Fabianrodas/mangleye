@@ -43,24 +43,24 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="max-w-2xl"
+            className="max-w-2xl bg-black/50 backdrop-blur-md rounded-2xl px-8 py-8 border border-white/10 shadow-[0_8px_60px_rgba(0,0,0,0.6)]"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/20 border border-destructive/30 mb-6 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/30 border border-destructive/40 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
-              <span className="text-[11px] font-semibold text-white/90">Active flooding season</span>
+              <span className="text-[11px] font-semibold text-white">Active flooding season</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5 text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.8),0_4px_40px_rgba(0,0,0,0.5)]">
               Guayaquil didn't just flood.
               <br />
-              <span className="text-geo-cyan drop-shadow-[0_0_20px_hsl(188,50%,38%,0.4)]">It lost its protective edges.</span>
+              <span className="text-[hsl(188,80%,55%)] [text-shadow:0_0_30px_hsl(188,60%,45%,0.5),0_2px_20px_rgba(0,0,0,0.8)]">It lost its protective edges.</span>
             </h1>
 
-            <p className="text-base md:text-lg text-white/70 mb-8 leading-relaxed max-w-lg">
+            <p className="text-base md:text-lg text-white/80 mb-8 leading-relaxed max-w-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
               Urban growth replaced natural buffers. Water now has nowhere to go. Mangleye maps the damage and the path to restoration.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex flex-wrap gap-3">
               <Link
                 to="/report/flood"
                 className="group px-7 py-3.5 bg-destructive text-white rounded-lg text-sm font-bold hover:bg-destructive/90 transition-all shadow-lg flex items-center gap-2"
@@ -70,7 +70,7 @@ export default function HeroSection() {
               </Link>
               <Link
                 to="/map"
-                className="px-7 py-3.5 bg-white/10 text-white border border-white/20 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm flex items-center gap-2"
+                className="px-7 py-3.5 bg-white/15 text-white border border-white/25 rounded-lg text-sm font-semibold hover:bg-white/25 transition-colors backdrop-blur-sm flex items-center gap-2"
               >
                 <Map size={16} />
                 Explore Live Map
