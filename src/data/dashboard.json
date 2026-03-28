@@ -1,0 +1,11 @@
+{
+  "floodReports": 127,
+  "ecologicalObservations": 43,
+  "priorityZones": 6,
+  "highRiskZones": 3,
+  "avgPriorityScore": 83,
+  "exposedPopulation": 168000,
+  "totalPriorityAreaHa": 283.6,
+  "topPriorityZoneId": "z1",
+  "highestOpportunityZoneId": "z1"
+}
