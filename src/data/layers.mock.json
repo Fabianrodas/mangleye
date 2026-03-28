@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "projection": "EPSG:4326",
+    "date_generated": "2024-03-15",
+    "simulation_note": "Layers simulate real environmental data products for prototype demonstration"
+  },
+  "layers": {
+    "flood-zones": {
+      "source": "Fathom Global Flood Model v3 (simulated)",
+      "type": "raster_classified",
+      "resolution_m": 30,
+      "return_periods": [5, 10, 25, 50, 100],
+      "zones": [
+        { "zone_id": "z1", "risk_level": "High", "depth_5yr_m": 0.45, "depth_100yr_m": 1.8, "affected_area_pct": 72 },
+        { "zone_id": "z2", "risk_level": "High", "depth_5yr_m": 0.65, "depth_100yr_m": 2.4, "affected_area_pct": 85 },
+        { "zone_id": "z3", "risk_level": "Medium", "depth_5yr_m": 0.20, "depth_100yr_m": 0.9, "affected_area_pct": 35 },
+        { "zone_id": "z4", "risk_level": "Medium", "depth_5yr_m": 0.30, "depth_100yr_m": 1.2, "affected_area_pct": 48 },
+        { "zone_id": "z5", "risk_level": "Medium", "depth_5yr_m": 0.25, "depth_100yr_m": 1.0, "affected_area_pct": 42 },
+        { "zone_id": "z6", "risk_level": "Low", "depth_5yr_m": 0.10, "depth_100yr_m": 0.6, "affected_area_pct": 18 }
+      ]
+    },
+    "functional-mangrove": {
+      "source": "Global Mangrove Watch v3 + SERVIR Amazonia (simulated)",
+      "type": "vector_polygon",
+      "total_area_ha": 149.8,
+      "features_count": 4,
+      "year": 2022,
+      "species_composition": {
+        "Rhizophora mangle": 0.55,
+        "Avicennia germinans": 0.25,
+        "Laguncularia racemosa": 0.12,
+        "Conocarpus erectus": 0.08
+      }
+    },
+    "degraded-mangrove": {
+      "source": "Global Mangrove Watch v3 change detection (simulated)",
+      "type": "vector_polygon",
+      "total_area_ha": 17.7,
+      "features_count": 4,
+      "year": 2022,
+      "primary_threats": ["urban_encroachment", "aquaculture_expansion", "industrial_runoff", "landfill"]
+    },
+    "candidate-restoration": {
+      "source": "Derived from mangrove loss + suitability analysis (simulated)",
+      "type": "vector_polygon",
+      "total_area_ha": 52.4,
+      "candidates": [
+        { "zone_id": "z1", "area_ha": 5.4, "suitability_score": 0.85, "estimated_cost_usd_ha": 8500, "time_to_establishment_years": 3 },
+        { "zone_id": "z4", "area_ha": 28.2, "suitability_score": 0.88, "estimated_cost_usd_ha": 6200, "time_to_establishment_years": 2 },
+        { "zone_id": "z5", "area_ha": 5.6, "suitability_score": 0.72, "estimated_cost_usd_ha": 9800, "time_to_establishment_years": 4 },
+        { "zone_id": "z6", "area_ha": 13.2, "suitability_score": 0.95, "estimated_cost_usd_ha": 4500, "time_to_establishment_years": 2 }
+      ]
+    },
+    "exposed-population": {
+      "source": "WorldPop 2020 constrained estimates (simulated)",
+      "type": "raster_gridded",
+      "resolution_m": 100,
+      "total_exposed": 168000,
+      "by_zone": [
+        { "zone_id": "z1", "exposed": 45000, "vulnerability_index": 0.72 },
+        { "zone_id": "z2", "exposed": 62000, "vulnerability_index": 0.91 },
+        { "zone_id": "z3", "exposed": 28000, "vulnerability_index": 0.45 },
+        { "zone_id": "z4", "exposed": 15000, "vulnerability_index": 0.38 },
+        { "zone_id": "z5", "exposed": 35000, "vulnerability_index": 0.65 },
+        { "zone_id": "z6", "exposed": 2000, "vulnerability_index": 0.08 }
+      ]
+    },
+    "urban-pressure": {
+      "source": "Copernicus Urban Atlas + Sentinel-2 classification (simulated)",
+      "type": "raster_classified",
+      "resolution_m": 10,
+      "classes": ["high_density_urban", "medium_density_urban", "industrial", "informal", "periurban", "green_space"],
+      "by_zone": [
+        { "zone_id": "z1", "imperviousness_pct": 78, "pressure_level": "High", "sealed_surface_ha": 9.7 },
+        { "zone_id": "z2", "imperviousness_pct": 85, "pressure_level": "High", "sealed_surface_ha": 15.9 },
+        { "zone_id": "z3", "imperviousness_pct": 62, "pressure_level": "Medium", "sealed_surface_ha": 21.2 },
+        { "zone_id": "z4", "imperviousness_pct": 25, "pressure_level": "Low", "sealed_surface_ha": 11.4 },
+        { "zone_id": "z5", "imperviousness_pct": 58, "pressure_level": "Medium", "sealed_surface_ha": 13.0 },
+        { "zone_id": "z6", "imperviousness_pct": 3, "pressure_level": "Low", "sealed_surface_ha": 4.5 }
+      ]
+    },
+    "permeability": {
+      "source": "Derived from urban pressure + soil classification (simulated)",
+      "type": "raster_continuous",
+      "resolution_m": 10,
+      "by_zone": [
+        { "zone_id": "z1", "permeability_index": 0.22, "level": "Low" },
+        { "zone_id": "z2", "permeability_index": 0.15, "level": "Low" },
+        { "zone_id": "z3", "permeability_index": 0.38, "level": "Medium" },
+        { "zone_id": "z4", "permeability_index": 0.75, "level": "High" },
+        { "zone_id": "z5", "permeability_index": 0.42, "level": "Medium" },
+        { "zone_id": "z6", "permeability_index": 0.92, "level": "High" }
+      ]
+    },
+    "restoration-suitability": {
+      "source": "Multi-criteria suitability model (simulated)",
+      "type": "raster_continuous",
+      "resolution_m": 30,
+      "factors": ["tidal_access", "soil_type", "water_quality", "proximity_to_seed_source", "land_tenure"],
+      "by_zone": [
+        { "zone_id": "z1", "suitability": 0.85, "level": "High" },
+        { "zone_id": "z2", "suitability": 0.55, "level": "Medium" },
+        { "zone_id": "z3", "suitability": 0.40, "level": "Low" },
+        { "zone_id": "z4", "suitability": 0.88, "level": "High" },
+        { "zone_id": "z5", "suitability": 0.72, "level": "High" },
+        { "zone_id": "z6", "suitability": 0.95, "level": "High" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "Simulated from Global Mangrove Watch v3 + SERVIR Amazonia structure",
+    "projection": "EPSG:4326",
+    "date_generated": "2024-03-15",
+    "coverage": "Greater Guayaquil Metropolitan Area"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-001",
+        "zone_id": "z1",
+        "status": "degraded",
+        "year": 2022,
+        "area_hectares": 3.2,
+        "change_type": "loss",
+        "loss_year": 2018,
+        "original_area_hectares": 8.6,
+        "canopy_height_m": 4.2,
+        "biomass_tons_ha": 45,
+        "species_dominant": "Rhizophora mangle",
+        "threat": "urban_encroachment",
+        "water_quality_adjacent": 0.32
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.925, -2.168], [-79.918, -2.168], [-79.918, -2.172], [-79.925, -2.172], [-79.925, -2.168]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-002",
+        "zone_id": "z1",
+        "status": "degraded",
+        "year": 2020,
+        "area_hectares": 1.8,
+        "change_type": "loss",
+        "loss_year": 2016,
+        "original_area_hectares": 4.1,
+        "canopy_height_m": 2.8,
+        "biomass_tons_ha": 22,
+        "species_dominant": "Avicennia germinans",
+        "threat": "landfill_encroachment",
+        "water_quality_adjacent": 0.28
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.922, -2.165], [-79.917, -2.165], [-79.917, -2.169], [-79.922, -2.169], [-79.922, -2.165]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-003",
+        "zone_id": "z2",
+        "status": "lost",
+        "year": 2022,
+        "area_hectares": 0,
+        "change_type": "loss",
+        "loss_year": 2010,
+        "original_area_hectares": 12.4,
+        "canopy_height_m": 0,
+        "biomass_tons_ha": 0,
+        "species_dominant": "none",
+        "threat": "informal_settlement",
+        "water_quality_adjacent": 0.18
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.915, -2.218], [-79.905, -2.218], [-79.905, -2.225], [-79.915, -2.225], [-79.915, -2.218]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-004",
+        "zone_id": "z4",
+        "status": "degraded",
+        "year": 2022,
+        "area_hectares": 8.5,
+        "change_type": "loss",
+        "loss_year": 2020,
+        "original_area_hectares": 18.2,
+        "canopy_height_m": 5.8,
+        "biomass_tons_ha": 62,
+        "species_dominant": "Rhizophora mangle",
+        "threat": "aquaculture_expansion",
+        "water_quality_adjacent": 0.38
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.875, -2.128], [-79.865, -2.128], [-79.865, -2.135], [-79.875, -2.135], [-79.875, -2.128]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-005",
+        "zone_id": "z4",
+        "status": "functional",
+        "year": 2022,
+        "area_hectares": 15.3,
+        "change_type": "stable",
+        "loss_year": null,
+        "original_area_hectares": 16.1,
+        "canopy_height_m": 12.4,
+        "biomass_tons_ha": 142,
+        "species_dominant": "Rhizophora mangle",
+        "threat": null,
+        "water_quality_adjacent": 0.55
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.880, -2.132], [-79.868, -2.132], [-79.868, -2.140], [-79.880, -2.140], [-79.880, -2.132]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-006",
+        "zone_id": "z5",
+        "status": "degraded",
+        "year": 2022,
+        "area_hectares": 4.2,
+        "change_type": "loss",
+        "loss_year": 2019,
+        "original_area_hectares": 9.8,
+        "canopy_height_m": 3.5,
+        "biomass_tons_ha": 35,
+        "species_dominant": "Laguncularia racemosa",
+        "threat": "industrial_runoff",
+        "water_quality_adjacent": 0.42
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.845, -2.168], [-79.838, -2.168], [-79.838, -2.174], [-79.845, -2.174], [-79.845, -2.168]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-007",
+        "zone_id": "z6",
+        "status": "functional",
+        "year": 2022,
+        "area_hectares": 85.6,
+        "change_type": "stable",
+        "loss_year": null,
+        "original_area_hectares": 88.2,
+        "canopy_height_m": 14.8,
+        "biomass_tons_ha": 185,
+        "species_dominant": "Rhizophora mangle",
+        "threat": null,
+        "water_quality_adjacent": 0.72
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.880, -2.215], [-79.860, -2.215], [-79.860, -2.230], [-79.880, -2.230], [-79.880, -2.215]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-008",
+        "zone_id": "z6",
+        "status": "functional",
+        "year": 2022,
+        "area_hectares": 42.1,
+        "change_type": "gain",
+        "loss_year": null,
+        "original_area_hectares": 38.5,
+        "canopy_height_m": 8.2,
+        "biomass_tons_ha": 95,
+        "species_dominant": "Avicennia germinans",
+        "threat": null,
+        "water_quality_adjacent": 0.68
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.875, -2.222], [-79.862, -2.222], [-79.862, -2.232], [-79.875, -2.232], [-79.875, -2.222]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-009",
+        "zone_id": "z5",
+        "status": "functional",
+        "year": 2022,
+        "area_hectares": 6.8,
+        "change_type": "stable",
+        "loss_year": null,
+        "original_area_hectares": 7.2,
+        "canopy_height_m": 9.1,
+        "biomass_tons_ha": 108,
+        "species_dominant": "Rhizophora mangle",
+        "threat": null,
+        "water_quality_adjacent": 0.52
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.848, -2.172], [-79.840, -2.172], [-79.840, -2.178], [-79.848, -2.178], [-79.848, -2.172]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mg-010",
+        "zone_id": "z3",
+        "status": "lost",
+        "year": 2018,
+        "area_hectares": 0,
+        "change_type": "loss",
+        "loss_year": 2005,
+        "original_area_hectares": 6.8,
+        "canopy_height_m": 0,
+        "biomass_tons_ha": 0,
+        "species_dominant": "none",
+        "threat": "urban_development",
+        "water_quality_adjacent": 0.45
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-79.955, -2.198], [-79.948, -2.198], [-79.948, -2.204], [-79.955, -2.204], [-79.955, -2.198]]]
+      }
+    }
+  ]
+}
