@@ -1,0 +1,28 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Don't redirect asset files
+[[redirects]]
+  from = "/mangleye/assets/*"
+  to = "/mangleye/assets/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/mangleye/data/*"
+  to = "/mangleye/data/:splat"
+  status = 200
+
+# Redirect everything else to index.html for SPA routing
+[[redirects]]
+  from = "/mangleye/*"
+  to = "/mangleye/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  NODE_VERSION = "20"

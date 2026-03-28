@@ -1,1 +1,4 @@
-/mangleye/* /mangleye/index.html 200
+/mangleye/assets/*  /mangleye/assets/:splat  200
+/mangleye/data/*    /mangleye/data/:splat    200
+/mangleye/*         /mangleye/index.html     200
+/*                  /index.html              200
