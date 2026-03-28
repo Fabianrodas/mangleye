@@ -1,18 +1,24 @@
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Map, Layers, AlertTriangle, Radio } from "lucide-react";
+import { Map, Layers, AlertTriangle, Radio, Droplets, TreePine, ShieldAlert } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 const mapPoints = [
-  { x: 22, y: 32, color: "bg-destructive", label: "High flood risk", urgent: true, size: 14 },
-  { x: 48, y: 28, color: "bg-geo-amber", label: "Mangrove loss detected", urgent: false, size: 11 },
-  { x: 35, y: 52, color: "bg-destructive", label: "Critical flooding zone", urgent: true, size: 16 },
-  { x: 65, y: 44, color: "bg-geo-green", label: "Restoration candidate", urgent: false, size: 10 },
-  { x: 28, y: 65, color: "bg-geo-amber", label: "Urban pressure rising", urgent: false, size: 12 },
-  { x: 72, y: 30, color: "bg-primary", label: "Buffer zone intact", urgent: false, size: 9 },
-  { x: 55, y: 62, color: "bg-destructive", label: "Recurrent flood area", urgent: true, size: 13 },
-  { x: 40, y: 38, color: "bg-geo-blue", label: "Estuary edge eroding", urgent: false, size: 11 },
+  { x: 22, y: 32, type: "flood" as const, label: "High flood risk", urgent: true },
+  { x: 48, y: 28, type: "warning" as const, label: "Mangrove loss detected", urgent: false },
+  { x: 35, y: 52, type: "flood" as const, label: "Critical flooding zone", urgent: true },
+  { x: 65, y: 44, type: "ecology" as const, label: "Restoration candidate", urgent: false },
+  { x: 28, y: 65, type: "warning" as const, label: "Urban pressure rising", urgent: false },
+  { x: 72, y: 30, type: "ecology" as const, label: "Buffer zone intact", urgent: false },
+  { x: 55, y: 62, type: "flood" as const, label: "Recurrent flood area", urgent: true },
+  { x: 40, y: 38, type: "warning" as const, label: "Estuary edge eroding", urgent: false },
 ];
+
+const typeConfig = {
+  flood: { icon: Droplets, bg: "bg-destructive", ring: "border-destructive/40", glow: "hsl(var(--destructive) / 0.35)", text: "text-destructive-foreground" },
+  ecology: { icon: TreePine, bg: "bg-geo-green", ring: "border-geo-green/40", glow: "hsl(var(--geo-green) / 0.35)", text: "text-white" },
+  warning: { icon: ShieldAlert, bg: "bg-geo-amber", ring: "border-geo-amber/40", glow: "hsl(var(--geo-amber) / 0.35)", text: "text-white" },
+};
 
 function ScanLine() {
   return (
@@ -26,49 +32,49 @@ function ScanLine() {
 }
 
 function MapPoint({ point, index, isActive }: { point: typeof mapPoints[0]; index: number; isActive: boolean }) {
+  const config = typeConfig[point.type];
+  const Icon = config.icon;
+
   return (
     <motion.div
       className="absolute"
-      style={{ left: `${point.x}%`, top: `${point.y}%` }}
+      style={{ left: `${point.x}%`, top: `${point.y}%`, transform: "translate(-50%, -50%)" }}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.3 + index * 0.25, type: "spring", stiffness: 200 }}
     >
-      {/* Pulse ring for urgent */}
-      {point.urgent && (
+      {/* Outer pulse ring */}
+      {(point.urgent || isActive) && (
         <motion.div
-          className="absolute inset-0 rounded-full bg-destructive/30"
-          style={{ width: point.size * 2.5, height: point.size * 2.5, marginLeft: -(point.size * 2.5 - point.size) / 2, marginTop: -(point.size * 2.5 - point.size) / 2 }}
-          animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
+          className={`absolute inset-0 rounded-full border-2 ${config.ring}`}
+          style={{ width: 36, height: 36, marginLeft: -10, marginTop: -10 }}
+          animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
           transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
         />
       )}
 
-      {/* Glow for active */}
+      {/* Glow effect */}
       {isActive && (
         <motion.div
-          className="absolute rounded-full"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
+          className="absolute rounded-full pointer-events-none"
           style={{
-            width: point.size * 3,
-            height: point.size * 3,
-            marginLeft: -(point.size * 3 - point.size) / 2,
-            marginTop: -(point.size * 3 - point.size) / 2,
-            background: point.urgent ? "hsl(var(--destructive) / 0.25)" : "hsl(var(--primary) / 0.25)",
-            filter: "blur(6px)",
+            width: 44, height: 44,
+            marginLeft: -14, marginTop: -14,
+            background: `radial-gradient(circle, ${config.glow}, transparent 70%)`,
           }}
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
         />
       )}
 
-      {/* Dot */}
+      {/* Marker body */}
       <motion.div
-        className={`rounded-full ${point.color}`}
-        style={{ width: point.size, height: point.size }}
-        animate={isActive ? { scale: [1, 1.4, 1] } : {}}
+        className={`relative w-4 h-4 rounded-full ${config.bg} flex items-center justify-center shadow-lg`}
+        animate={isActive ? { scale: [1, 1.25, 1] } : {}}
         transition={{ duration: 0.8, repeat: Infinity }}
-      />
+      >
+        <Icon size={8} className={config.text} strokeWidth={2.5} />
+      </motion.div>
 
       {/* Label */}
       <AnimatePresence>
@@ -77,9 +83,9 @@ function MapPoint({ point, index, isActive }: { point: typeof mapPoints[0]; inde
             initial={{ opacity: 0, x: 5, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -5, scale: 0.9 }}
-            className="absolute left-full ml-2 top-1/2 -translate-y-1/2 whitespace-nowrap z-10"
+            className="absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap z-10"
           >
-            <div className="px-2.5 py-1 bg-foreground/90 backdrop-blur-sm rounded-md text-[10px] font-semibold text-white shadow-lg border border-white/10">
+            <div className="px-2.5 py-1.5 bg-foreground/90 backdrop-blur-sm rounded-lg text-[10px] font-semibold text-white shadow-xl border border-white/10">
               <div className="flex items-center gap-1.5">
                 {point.urgent && <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />}
                 {point.label}
@@ -106,11 +112,11 @@ function StatusBar() {
       transition={{ delay: 2.5 }}
       className="absolute top-3 left-3 right-3 flex items-center justify-between"
     >
-      <div className="flex items-center gap-1.5 px-2 py-1 bg-foreground/80 backdrop-blur-sm rounded text-[9px] text-white font-mono">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-foreground/80 backdrop-blur-sm rounded-lg text-[9px] text-white font-mono">
         <Radio size={8} className="text-geo-green animate-pulse" />
         LIVE — {count} data points processed
       </div>
-      <div className="px-2 py-1 bg-destructive/90 backdrop-blur-sm rounded text-[9px] text-white font-bold animate-pulse">
+      <div className="px-2.5 py-1.5 bg-destructive/90 backdrop-blur-sm rounded-lg text-[9px] text-white font-bold animate-pulse">
         3 ALERTS
       </div>
     </motion.div>
@@ -120,7 +126,6 @@ function StatusBar() {
 export default function MapPreviewSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hovered, setHovered] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -179,7 +184,6 @@ export default function MapPreviewSection() {
 
           {/* Live map visual */}
           <motion.div
-            ref={containerRef}
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -196,24 +200,19 @@ export default function MapPreviewSection() {
               `
             }} />
 
-            {/* Grid lines for map feel */}
+            {/* Grid lines */}
             <div className="absolute inset-0 opacity-[0.04]" style={{
               backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
               backgroundSize: "40px 40px"
             }} />
 
-            {/* Scan line */}
             <ScanLine />
-
-            {/* Status bar */}
             <StatusBar />
 
-            {/* Map points */}
             {mapPoints.map((point, i) => (
               <MapPoint key={i} point={point} index={i} isActive={hovered ? true : i === activeIndex} />
             ))}
 
-            {/* Hover flash effect */}
             <AnimatePresence>
               {hovered && (
                 <motion.div
@@ -226,17 +225,23 @@ export default function MapPreviewSection() {
               )}
             </AnimatePresence>
 
-            {/* Bottom layer tags */}
+            {/* Legend */}
             <div className="absolute bottom-3 left-3 right-3 flex gap-2">
-              {["Flood Zones", "Mangroves", "Reports", "Priority"].map((label, i) => (
+              {[
+                { label: "Flood Risk", color: "bg-destructive" },
+                { label: "Ecology", color: "bg-geo-green" },
+                { label: "Warning", color: "bg-geo-amber" },
+                { label: "Priority", color: "bg-primary" },
+              ].map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 2 + i * 0.15 }}
-                  className="px-2 py-1 bg-card/90 backdrop-blur-sm rounded text-[10px] font-medium text-muted-foreground border border-border/50"
+                  className="px-2 py-1 bg-card/90 backdrop-blur-sm rounded-md text-[10px] font-medium text-muted-foreground border border-border/50 flex items-center gap-1.5"
                 >
-                  {label}
+                  <span className={`w-2 h-2 rounded-full ${item.color}`} />
+                  {item.label}
                 </motion.div>
               ))}
             </div>
