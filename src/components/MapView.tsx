@@ -124,8 +124,8 @@ const getLayerIcon = (layer: LayerType, zone: Zone) => {
   const configs: Record<string, { svg: string; size: [number, number] }> = {
     "functional-mangrove": { svg: svgTreeCluster("#2D8B5E", 0.8), size: [32, 28] },
     "degraded-mangrove": { svg: svgDegradedTree("#B8860B", 0.75), size: [28, 26] },
-    "candidate-restoration": { svg: svgLeaf("#3BA58B", 0.7), size: [24, 24] },
-    "ecological-opportunity": { svg: svgLeaf("#4A9D6E", 0.65), size: [24, 24] },
+    "candidate-restoration": { svg: svgLeaf("#3BA58B"), size: [24, 24] },
+    "ecological-opportunity": { svg: svgLeaf("#4A9D6E"), size: [24, 24] },
     "flood-zones": { svg: svgWaves("#2E6EB5", zone.floodLevel), size: [36, 24] },
     "flood-reports": { svg: svgFloodDrop("#2E6EB5", zone.floodLevel), size: [20, 26] },
     "estuaries": { svg: svgEstuary("#3A8FA7"), size: [30, 22] },
