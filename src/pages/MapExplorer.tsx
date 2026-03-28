@@ -16,6 +16,11 @@ export default function MapExplorer() {
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [metrics, setMetrics] = useState<{ floodReports: number; ecologicalObservations: number } | null>(null);
+
+  useEffect(() => {
+    getDashboardMetrics().then(m => setMetrics(m));
+  }, []);
 
   const toggleLayer = useCallback((layer: LayerType) => {
     setActiveLayers(prev =>
