@@ -21,25 +21,37 @@ const getScoreColorHex = (score: number) => {
   return "#2A8060";
 };
 
-// Compact zone label marker
+// Seeded pseudo-random for deterministic scatter
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
+};
+
+// Zone marker with score label
 const getZoneIcon = (zone: Zone, isSelected: boolean) => {
   const color = getScoreColorHex(zone.priorityScore);
-  const size = isSelected ? 10 : 7;
+  const w = isSelected ? 54 : 44;
+  const h = isSelected ? 28 : 24;
 
   const iconHtml = `<div style="
-    width:${size}px;height:${size}px;
-    background:${color};
-    border:2px solid white;
-    border-radius:50%;
-    box-shadow:0 1px 4px ${color}50${isSelected ? ',0 0 0 3px ' + color + '30' : ''};
+    display:flex;align-items:center;gap:4px;
+    padding:3px 8px;
+    background:white;
+    border:2px solid ${color};
+    border-radius:${isSelected ? '10px' : '8px'};
+    box-shadow:0 2px 8px ${color}35${isSelected ? ',0 0 0 3px ' + color + '22' : ''};
     transition:all 0.2s;cursor:pointer;
-  "></div>`;
+    white-space:nowrap;
+  ">
+    <div style="width:8px;height:8px;border-radius:50%;background:${color}"></div>
+    <span style="font-family:JetBrains Mono;font-size:11px;font-weight:700;color:${color}">${zone.priorityScore}</span>
+  </div>`;
 
   return L.divIcon({
     className: "custom-marker",
     html: iconHtml,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h / 2],
   });
 };
 
@@ -55,8 +67,8 @@ const createMangroveTerritory = (zone: Zone, layer: LayerType, group: L.LayerGro
     : isCandidate ? "hsl(172, 50%, 42%)"
     : "hsl(140, 45%, 45%)";
 
-  const fillOpacity = isFunctional ? 0.22 : isDegraded ? 0.16 : 0.12;
-  const baseRadius = isFunctional ? 1000 : isDegraded ? 800 : isCandidate ? 700 : 600;
+  const fillOpacity = isFunctional ? 0.32 : isDegraded ? 0.24 : isCandidate ? 0.2 : 0.18;
+  const baseRadius = isFunctional ? 1200 : isDegraded ? 950 : isCandidate ? 850 : 750;
   const weight = isFunctional ? 2.5 : 2;
 
   // Main coverage area — soft filled polygon-like circle
@@ -66,48 +78,49 @@ const createMangroveTerritory = (zone: Zone, layer: LayerType, group: L.LayerGro
     fillColor: color,
     fillOpacity,
     weight,
-    opacity: 0.4,
-    dashArray: isFunctional ? undefined : "5 3",
+    opacity: 0.55,
+    dashArray: isFunctional ? undefined : "6 4",
   });
   group.addLayer(mainArea);
 
-  // Scatter small vegetation dots to create texture
-  const dotCount = isFunctional ? 18 : isDegraded ? 10 : 7;
-  const spread = baseRadius * 0.0000085; // approx degrees for scatter
+  // Scatter vegetation clusters for texture (deterministic)
+  const dotCount = isFunctional ? 22 : isDegraded ? 14 : 9;
+  const spread = baseRadius * 0.000009;
+  const seed = zone.lat * 1000 + zone.lng * 1000;
 
   for (let i = 0; i < dotCount; i++) {
-    const angle = (Math.PI * 2 * i) / dotCount + (Math.random() - 0.5) * 0.8;
-    const dist = (0.3 + Math.random() * 0.7) * spread;
+    const angle = (Math.PI * 2 * i) / dotCount + (seededRandom(seed + i) - 0.5) * 0.9;
+    const dist = (0.25 + seededRandom(seed + i + 100) * 0.75) * spread;
     const lat = zone.lat + Math.sin(angle) * dist;
     const lng = zone.lng + Math.cos(angle) * dist;
-    const r = 30 + Math.random() * (isFunctional ? 80 : 50);
+    const r = 40 + seededRandom(seed + i + 200) * (isFunctional ? 100 : 65);
 
     const dot = L.circle([lat, lng], {
       radius: r,
       color,
       fillColor: color,
-      fillOpacity: isFunctional ? 0.45 : isDegraded ? 0.3 : 0.25,
-      weight: 0.5,
-      opacity: 0.3,
+      fillOpacity: isFunctional ? 0.5 : isDegraded ? 0.38 : 0.3,
+      weight: 0.8,
+      opacity: 0.4,
     });
     group.addLayer(dot);
   }
 
   // For degraded zones: add scattered "gap" indicators
   if (isDegraded) {
-    for (let i = 0; i < 4; i++) {
-      const angle = (Math.PI * 2 * i) / 4 + Math.random() * 0.5;
-      const dist = spread * 0.5;
-      const lat = zone.lat + Math.sin(angle) * dist;
-      const lng = zone.lng + Math.cos(angle) * dist;
+    for (let i = 0; i < 5; i++) {
+      const angle = (Math.PI * 2 * i) / 5 + seededRandom(seed + i + 300) * 0.5;
+      const dist = spread * 0.55;
+      const gLat = zone.lat + Math.sin(angle) * dist;
+      const gLng = zone.lng + Math.cos(angle) * dist;
 
-      const gap = L.circle([lat, lng], {
-        radius: 60,
+      const gap = L.circle([gLat, gLng], {
+        radius: 80,
         color: "hsl(38, 70%, 48%)",
         fillColor: "hsl(38, 80%, 60%)",
-        fillOpacity: 0.15,
+        fillOpacity: 0.2,
         weight: 1.5,
-        opacity: 0.5,
+        opacity: 0.55,
         dashArray: "3 3",
       });
       group.addLayer(gap);
@@ -121,9 +134,9 @@ const createFloodTerritory = (zone: Zone, layer: LayerType, group: L.LayerGroup)
   const intensity = zone.floodLevel;
   const color = isReports ? "hsl(220, 65%, 52%)" : "hsl(205, 72%, 48%)";
 
-  const baseRadius = layer === "flood-zones" ? 900 : 600;
-  const fillOpacity = intensity === "High" ? 0.2 : intensity === "Medium" ? 0.12 : 0.06;
-  const weight = intensity === "High" ? 2.5 : intensity === "Medium" ? 2 : 1.5;
+  const baseRadius = layer === "flood-zones" ? 1100 : 750;
+  const fillOpacity = intensity === "High" ? 0.3 : intensity === "Medium" ? 0.18 : 0.1;
+  const weight = intensity === "High" ? 3 : intensity === "Medium" ? 2.5 : 2;
 
   // Main flood area
   const main = L.circle([zone.lat, zone.lng], {
@@ -132,8 +145,8 @@ const createFloodTerritory = (zone: Zone, layer: LayerType, group: L.LayerGroup)
     fillColor: color,
     fillOpacity,
     weight,
-    opacity: intensity === "High" ? 0.6 : 0.35,
-    dashArray: intensity === "High" ? undefined : "6 4",
+    opacity: intensity === "High" ? 0.7 : 0.45,
+    dashArray: intensity === "High" ? undefined : "8 5",
   });
   group.addLayer(main);
 
@@ -145,8 +158,8 @@ const createFloodTerritory = (zone: Zone, layer: LayerType, group: L.LayerGroup)
       color,
       fillColor: "transparent",
       fillOpacity: 0,
-      weight: intensity === "High" ? 1.5 : 1,
-      opacity: 0.2 + (ringCount - i) * 0.1,
+      weight: intensity === "High" ? 2 : 1.5,
+      opacity: 0.3 + (ringCount - i) * 0.1,
       dashArray: "4 6",
     });
     group.addLayer(ring);
@@ -158,8 +171,8 @@ const createFloodTerritory = (zone: Zone, layer: LayerType, group: L.LayerGroup)
       radius: baseRadius * 1.15,
       color: "hsl(4, 60%, 50%)",
       fillColor: "hsl(4, 60%, 50%)",
-      fillOpacity: 0.04,
-      weight: 1,
+      fillOpacity: 0.08,
+      weight: 1.5,
       opacity: 0.2,
       dashArray: "8 4",
     });
@@ -176,9 +189,9 @@ const createEstuaryOverlay = (zone: Zone, group: L.LayerGroup) => {
     radius: 500,
     color,
     fillColor: color,
-    fillOpacity: 0.1,
-    weight: 2.5,
-    opacity: 0.5,
+    fillOpacity: 0.18,
+    weight: 3,
+    opacity: 0.6,
   });
   group.addLayer(main);
 
@@ -189,9 +202,9 @@ const createEstuaryOverlay = (zone: Zone, group: L.LayerGroup) => {
       radius: 200 + i * 80,
       color,
       fillColor: color,
-      fillOpacity: 0.06,
-      weight: 1,
-      opacity: 0.3,
+      fillOpacity: 0.1,
+      weight: 1.5,
+      opacity: 0.4,
       dashArray: "3 5",
     });
     group.addLayer(flow);
@@ -211,16 +224,16 @@ const createAnalysisOverlay = (zone: Zone, layer: LayerType, group: L.LayerGroup
   const color = colorMap[layer] || "hsl(200, 30%, 50%)";
   const isPriority = layer === "priority-intervention";
   const isPopulation = layer === "exposed-population";
-  const radius = isPriority ? 750 : isPopulation ? 650 : 500;
+  const radius = isPriority ? 900 : isPopulation ? 750 : 600;
 
   const main = L.circle([zone.lat, zone.lng], {
     radius,
     color,
     fillColor: color,
-    fillOpacity: isPriority ? 0.18 : 0.1,
-    weight: isPriority ? 2.5 : 1.5,
-    opacity: isPriority ? 0.6 : 0.35,
-    dashArray: isPriority ? "8 4" : layer === "permeability" ? "4 4" : undefined,
+    fillOpacity: isPriority ? 0.25 : 0.14,
+    weight: isPriority ? 3 : 2,
+    opacity: isPriority ? 0.7 : 0.45,
+    dashArray: isPriority ? "8 4" : layer === "permeability" ? "5 4" : undefined,
   });
   group.addLayer(main);
 
@@ -230,9 +243,9 @@ const createAnalysisOverlay = (zone: Zone, layer: LayerType, group: L.LayerGroup
       radius: radius * 0.3,
       color,
       fillColor: color,
-      fillOpacity: 0.25,
-      weight: 1,
-      opacity: 0.4,
+      fillOpacity: 0.35,
+      weight: 1.5,
+      opacity: 0.5,
     });
     group.addLayer(inner);
   }
