@@ -1,33 +1,133 @@
 import Header from "@/components/Header";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { Droplets, TreePine, ThumbsUp, MapPin, AlertTriangle, Camera, TrendingUp, Eye, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import floodImg from "@/assets/flooding-street.jpg";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
+import { getReports, type CitizenReport, validateCitizenReport } from "@/api/mock-api";
+import { zones } from "@/data/zones";
+import { toast } from "@/hooks/use-toast";
 
-const recentReports = [
-  { type: "flood", zone: "Estero Salado – Urdesa", text: "Severe flooding blocking Av. Carlos Julio Arosemena", time: "12 min ago", validations: 8, hasPhoto: true },
-  { type: "ecological", zone: "La Puntilla – Samborondón", text: "New mangrove shoots observed along estuary edge", time: "34 min ago", validations: 5, hasPhoto: true },
-  { type: "flood", zone: "Guasmo Sur – Estero Cobina", text: "Drainage overflow near school, knee-height water", time: "1 hr ago", validations: 14, hasPhoto: false },
-  { type: "flood", zone: "Isla Trinitaria – Southern", text: "Tidal flooding in informal settlement area", time: "2 hrs ago", validations: 22, hasPhoto: true },
-  { type: "ecological", zone: "Estero Salado – Urdesa", text: "Water quality noticeably improved after cleanup", time: "3 hrs ago", validations: 3, hasPhoto: false },
-  { type: "flood", zone: "Mapasingue – Canal Edge", text: "Street flooding after 30 min rainfall, no drainage", time: "5 hrs ago", validations: 11, hasPhoto: true },
-];
+function formatRelativeTime(timestamp: string) {
+  const diffMs = Date.now() - new Date(timestamp).getTime();
+  const minutes = Math.max(1, Math.floor(diffMs / 60000));
 
-const topZones = [
-  { name: "Estero Salado – Urdesa", reports: 47, trend: "+12 this week" },
-  { name: "Isla Trinitaria – Southern", reports: 38, trend: "+8 this week" },
-  { name: "Guasmo Sur – Estero Cobina", reports: 29, trend: "+6 this week" },
-  { name: "Mapasingue – Canal Edge", reports: 18, trend: "+4 this week" },
-];
+  if (minutes < 60) return `${minutes} min ago`;
 
-const recentValidations = [
-  { zone: "Estero Salado – Urdesa", text: "Flooding confirmed by 8 citizens", time: "15 min ago" },
-  { zone: "Isla Trinitaria", text: "Mangrove degradation validated", time: "1 hr ago" },
-  { zone: "Guasmo Sur", text: "Drainage overflow validated by 14 citizens", time: "2 hrs ago" },
-];
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+  const weeks = Math.floor(days / 7);
+  return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+}
 
 export default function Community() {
+  const [reports, setReports] = useState<CitizenReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [validatingId, setValidatingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+
+    getReports()
+      .then(result => {
+        if (!cancelled) {
+          setReports(result.reports);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoading(false);
+          toast({
+            title: "Unable to load reports",
+            description: "Please refresh the page.",
+            variant: "destructive",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const zoneNameById = useMemo(() => {
+    const entries = zones.map(zone => [zone.id, zone.name]);
+    return Object.fromEntries(entries) as Record<string, string>;
+  }, []);
+
+  const summary = useMemo(() => {
+    const floodCount = reports.filter(report => report.type === "flood").length;
+    const ecologicalCount = reports.filter(report => report.type === "ecological").length;
+    const photoEvidence = reports.reduce((sum, report) => sum + (report.photo_count ?? 0), 0);
+    const validations = reports.reduce((sum, report) => sum + (report.validation_count ?? 0), 0);
+    return { floodCount, ecologicalCount, photoEvidence, validations };
+  }, [reports]);
+
+  const latestReports = useMemo(() => reports.slice(0, 8), [reports]);
+
+  const evidenceReports = useMemo(() => {
+    const withPhotos = reports.filter(report => (report.photo_count ?? 0) > 0).slice(0, 4);
+    if (withPhotos.length > 0) return withPhotos;
+    return reports.slice(0, 4);
+  }, [reports]);
+
+  const topZones = useMemo(() => {
+    const zoneCounter = new Map<string, number>();
+    reports.forEach(report => {
+      zoneCounter.set(report.zone_id, (zoneCounter.get(report.zone_id) ?? 0) + 1);
+    });
+
+    const values = Array.from(zoneCounter.entries())
+      .map(([zoneId, count]) => ({
+        name: zoneNameById[zoneId] ?? zoneId,
+        reports: count,
+      }))
+      .sort((a, b) => b.reports - a.reports)
+      .slice(0, 4)
+      .map((entry, index) => ({
+        ...entry,
+        trend: `Top ${index + 1}`,
+      }));
+
+    return values;
+  }, [reports, zoneNameById]);
+
+  const recentValidations = useMemo(() => {
+    return reports
+      .filter(report => (report.validation_count ?? 0) > 0)
+      .sort((a, b) => (b.validation_count ?? 0) - (a.validation_count ?? 0))
+      .slice(0, 3)
+      .map(report => ({
+        id: report.id,
+        zone: zoneNameById[report.zone_id] ?? report.zone_id,
+        text: `${report.type === "flood" ? "Flooding" : "Ecological condition"} confirmed by ${report.validation_count ?? 0} citizens`,
+        time: formatRelativeTime(report.timestamp),
+      }));
+  }, [reports, zoneNameById]);
+
+  const handleValidate = async (reportId: string) => {
+    setValidatingId(reportId);
+    try {
+      const nextCount = await validateCitizenReport(reportId);
+      setReports(prev => prev.map(report => report.id === reportId ? { ...report, validation_count: nextCount } : report));
+    } catch {
+      toast({
+        title: "Validation failed",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setValidatingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -47,10 +147,10 @@ export default function Community() {
         {/* Counters */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: Droplets, label: "Flood Reports", value: "2,847", color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
-            { icon: TreePine, label: "Eco Observations", value: "438", color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
-            { icon: ThumbsUp, label: "Validations", value: "1,230", color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
-            { icon: Camera, label: "Photo Evidence", value: "614", color: "text-geo-amber", bg: "bg-geo-amber/8", border: "border-geo-amber/15" },
+            { icon: Droplets, label: "Flood Reports", value: loading ? "..." : String(summary.floodCount), color: "text-geo-blue", bg: "bg-geo-blue/8", border: "border-geo-blue/15" },
+            { icon: TreePine, label: "Eco Observations", value: loading ? "..." : String(summary.ecologicalCount), color: "text-geo-green", bg: "bg-geo-green/8", border: "border-geo-green/15" },
+            { icon: ThumbsUp, label: "Validations", value: loading ? "..." : String(summary.validations), color: "text-primary", bg: "bg-primary/8", border: "border-primary/15" },
+            { icon: Camera, label: "Photo Evidence", value: loading ? "..." : String(summary.photoEvidence), color: "text-geo-amber", bg: "bg-geo-amber/8", border: "border-geo-amber/15" },
           ].map((m, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className={`p-4 rounded-xl bg-white border ${m.border}`}>
@@ -70,17 +170,32 @@ export default function Community() {
             Recent Evidence
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[floodImg, mangroveImg, floodImg, mangroveImg].map((img, i) => (
+            {(evidenceReports.length > 0 ? evidenceReports : []).map((report, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
+                className="relative aspect-[4/3] rounded-xl overflow-hidden group cursor-pointer">
+                <img src={report.type === "flood" ? floodImg : mangroveImg} alt="Community evidence" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-[10px] font-medium">{zoneNameById[report.zone_id] ?? report.zone_id}</span>
+                </div>
+                <div className="absolute top-2 right-2">
+                  <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold text-white ${report.type === "flood" ? "bg-destructive/80" : "bg-geo-green/80"}`}>
+                    {report.type === "flood" ? "Flood" : "Ecology"}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+            {evidenceReports.length === 0 && [floodImg, mangroveImg, floodImg, mangroveImg].map((img, i) => (
+              <motion.div key={`placeholder-${i}`} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
                 className="relative aspect-[4/3] rounded-xl overflow-hidden group cursor-pointer">
                 <img src={img} alt="Community evidence" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white text-[10px] font-medium">{["Flooding – Urdesa", "Mangrove shoots – Puntilla", "Overflow – Guasmo", "Estuary edge – Cobina"][i]}</span>
+                  <span className="text-white text-[10px] font-medium">No evidence uploaded yet</span>
                 </div>
                 <div className="absolute top-2 right-2">
                   <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold text-white ${i % 2 === 0 ? "bg-destructive/80" : "bg-geo-green/80"}`}>
-                    {i % 2 === 0 ? "Flood" : "Ecology"}
+                    Placeholder
                   </span>
                 </div>
               </motion.div>
@@ -95,17 +210,22 @@ export default function Community() {
               <Clock size={14} className="text-muted-foreground" />
               Latest Reports & Observations
             </h2>
-            {recentReports.map((report, i) => (
+            {loading && [1, 2, 3].map((item) => (
+              <div key={`loading-${item}`} className="glass-panel p-4 animate-pulse">
+                <div className="h-3 bg-secondary rounded w-4/5 mb-2" />
+                <div className="h-2 bg-secondary rounded w-2/3" />
+              </div>
+            ))}
+            {!loading && latestReports.map((report, i) => (
               <motion.div
-                key={i}
+                key={report.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
                 className="glass-panel p-4 flex items-start gap-3"
               >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                  report.type === "flood" ? "bg-destructive/8" : "bg-geo-green/8"
-                }`}>
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${report.type === "flood" ? "bg-destructive/8" : "bg-geo-green/8"
+                  }`}>
                   {report.type === "flood" ? (
                     <Droplets size={16} className="text-destructive" />
                   ) : (
@@ -113,19 +233,31 @@ export default function Community() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium">{report.text}</div>
+                  <div className="text-sm font-medium">{report.description}</div>
                   <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
-                    <span className="flex items-center gap-0.5"><MapPin size={9} /> {report.zone}</span>
-                    <span>· {report.time}</span>
-                    {report.hasPhoto && <span className="flex items-center gap-0.5 text-geo-amber"><Camera size={9} /> Photo</span>}
+                    <span className="flex items-center gap-0.5"><MapPin size={9} /> {zoneNameById[report.zone_id] ?? report.zone_id}</span>
+                    <span>· {formatRelativeTime(report.timestamp)}</span>
+                    {(report.photo_count ?? 0) > 0 && <span className="flex items-center gap-0.5 text-geo-amber"><Camera size={9} /> Photo</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-primary shrink-0">
-                  <ThumbsUp size={10} />
-                  <span className="font-mono font-bold">{report.validations}</span>
+                <div className="flex items-center gap-2 text-[11px] text-primary shrink-0">
+                  <button
+                    onClick={() => handleValidate(report.id)}
+                    disabled={validatingId === report.id}
+                    className="px-2 py-1 rounded border border-primary/30 hover:bg-primary/10 transition-colors disabled:opacity-60"
+                  >
+                    {validatingId === report.id ? "..." : "Validate"}
+                  </button>
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp size={10} />
+                    <span className="font-mono font-bold">{report.validation_count ?? 0}</span>
+                  </span>
                 </div>
               </motion.div>
             ))}
+            {!loading && latestReports.length === 0 && (
+              <div className="glass-panel p-4 text-sm text-muted-foreground">No reports yet. Submit the first one from the report forms.</div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -146,6 +278,9 @@ export default function Community() {
                     <span className="text-[10px] text-geo-green font-semibold">{z.trend}</span>
                   </div>
                 ))}
+                {!loading && topZones.length === 0 && (
+                  <div className="text-[11px] text-muted-foreground">No active zones yet.</div>
+                )}
               </div>
             </div>
 
@@ -162,6 +297,9 @@ export default function Community() {
                     <div className="text-[10px] text-muted-foreground mt-0.5">{v.zone} · {v.time}</div>
                   </div>
                 ))}
+                {!loading && recentValidations.length === 0 && (
+                  <div className="text-[11px] text-muted-foreground">Validations will appear after users confirm reports.</div>
+                )}
               </div>
             </div>
 

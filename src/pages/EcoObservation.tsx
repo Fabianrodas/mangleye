@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
 import { TreePine, MapPin, ChevronLeft, Send, Upload, Eye, Droplets, AlertTriangle, Leaf, Waves } from "lucide-react";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
+import { zones } from "@/data/zones";
+import { submitCitizenReport } from "@/api/mock-api";
+import { toast } from "@/hooks/use-toast";
 
 const OBS_TYPES = [
   { label: "Mangrove presence", icon: "🌿" },
@@ -20,9 +23,124 @@ const MANGROVE_STATUS = [
   { label: "Unknown", color: "border-border/40 bg-white" },
 ];
 
+type EcoFormState = {
+  location: string;
+  zoneId: string;
+  observationType: string;
+  status: string;
+  waterBody: string;
+  notes: string;
+  restorationPotential: string;
+  photos: File[];
+};
+
+type EcoFormErrors = Partial<Record<keyof EcoFormState, string>>;
+
+const initialState: EcoFormState = {
+  location: "",
+  zoneId: "",
+  observationType: "",
+  status: "",
+  waterBody: "",
+  notes: "",
+  restorationPotential: "",
+  photos: [],
+};
+
+const statusToSeverity: Record<string, "low" | "medium" | "high" | "critical"> = {
+  "Present and healthy": "low",
+  "Present but degraded": "high",
+  "Absent but potentially suitable": "medium",
+  Unknown: "low",
+};
+
+function validateEcoForm(state: EcoFormState): EcoFormErrors {
+  const nextErrors: EcoFormErrors = {};
+
+  if (!state.location.trim()) {
+    nextErrors.location = "Please provide a location reference.";
+  }
+  if (!state.zoneId) {
+    nextErrors.zoneId = "Please select a zone.";
+  }
+  if (!state.observationType) {
+    nextErrors.observationType = "Please choose an observation type.";
+  }
+  if (!state.status) {
+    nextErrors.status = "Please choose the mangrove condition.";
+  }
+  if (state.notes.trim().length < 12) {
+    nextErrors.notes = "Please provide more detail (min 12 characters).";
+  }
+
+  return nextErrors;
+}
+
 export default function EcoObservation() {
   const [submitted, setSubmitted] = useState(false);
-  const [status, setStatus] = useState("");
+  const [reportId, setReportId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState<EcoFormState>(initialState);
+  const [errors, setErrors] = useState<EcoFormErrors>({});
+
+  const updateField = <K extends keyof EcoFormState>(field: K, value: EcoFormState[K]) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const validation = validateEcoForm(form);
+
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      toast({
+        title: "Incomplete observation",
+        description: "Please complete the required fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const report = await submitCitizenReport({
+        type: "ecological",
+        zone_id: form.zoneId,
+        severity: statusToSeverity[form.status],
+        description: [
+          `${form.observationType} at ${form.location.trim()}`,
+          `Condition: ${form.status}`,
+          form.waterBody ? `Water body: ${form.waterBody.trim()}` : null,
+          form.notes.trim(),
+          form.restorationPotential.trim() ? `Restoration: ${form.restorationPotential.trim()}` : null,
+        ].filter(Boolean).join(" · "),
+        photo_count: form.photos.length,
+      });
+
+      setReportId(report.id);
+      setSubmitted(true);
+      setForm(initialState);
+      setErrors({});
+      toast({
+        title: "Observation submitted",
+        description: "Your ecological report is now available in the platform data.",
+      });
+    } catch {
+      toast({
+        title: "Submission failed",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePhotoSelection = (files: FileList | null) => {
+    if (!files) return;
+    updateField("photos", Array.from(files));
+  };
 
   if (submitted) {
     return (
@@ -33,9 +151,19 @@ export default function EcoObservation() {
             <TreePine size={32} className="text-geo-green" />
           </div>
           <h2 className="text-2xl font-bold mb-2">Observation Submitted</h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Thank you for your ecological observation. It helps build a clearer picture of edge conditions across the city.</p>
+          <p className="text-sm text-muted-foreground mb-2 max-w-sm mx-auto">Thank you for your ecological observation. It has been added to the prototype dataset.</p>
+          <p className="text-xs font-mono text-geo-green mb-8">Tracking ID: {reportId}</p>
           <div className="flex gap-3 justify-center">
-            <button onClick={() => setSubmitted(false)} className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium">Submit Another</button>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setReportId("");
+              }}
+              className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium"
+            >
+              Submit Another
+            </button>
+            <Link to="/community" className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium">Community</Link>
             <Link to="/map" className="px-5 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">View Map</Link>
           </div>
         </div>
@@ -95,14 +223,32 @@ export default function EcoObservation() {
           </div>
 
           {/* Right: Form */}
-          <div className="md:col-span-3 space-y-5">
+          <form className="md:col-span-3 space-y-5" onSubmit={handleSubmit}>
             {/* Location */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">Where is this observation?</label>
               <div className="flex items-center gap-2 mb-2">
                 <MapPin size={14} className="text-muted-foreground" />
-                <input type="text" placeholder="Search or describe the location" className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 focus:ring-2 focus:ring-geo-green/10 transition-all" />
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(event) => updateField("location", event.target.value)}
+                  placeholder="Search or describe the location"
+                  className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 focus:ring-2 focus:ring-geo-green/10 transition-all"
+                />
               </div>
+              {errors.location && <p className="text-[11px] text-destructive mb-2">{errors.location}</p>}
+              <select
+                value={form.zoneId}
+                onChange={(event) => updateField("zoneId", event.target.value)}
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all mb-2"
+              >
+                <option value="">Select zone</option>
+                {zones.map(zone => (
+                  <option key={zone.id} value={zone.id}>{zone.name}</option>
+                ))}
+              </select>
+              {errors.zoneId && <p className="text-[11px] text-destructive mb-2">{errors.zoneId}</p>}
               <div className="h-44 bg-secondary/20 rounded-xl flex items-center justify-center border border-border/40 border-dashed">
                 <span className="text-xs text-muted-foreground">Click on map to set observation point</span>
               </div>
@@ -113,12 +259,21 @@ export default function EcoObservation() {
               <label className="text-xs font-semibold text-foreground mb-2 block">What did you observe?</label>
               <div className="grid grid-cols-2 gap-2">
                 {OBS_TYPES.map(t => (
-                  <button key={t.label} className="px-3 py-2.5 text-left rounded-xl bg-white hover:bg-geo-green/3 border border-border/40 hover:border-geo-green/30 transition-all flex items-center gap-2">
+                  <button
+                    type="button"
+                    key={t.label}
+                    onClick={() => updateField("observationType", t.label)}
+                    className={`px-3 py-2.5 text-left rounded-xl border transition-all flex items-center gap-2 ${form.observationType === t.label
+                        ? "bg-geo-green/8 border-geo-green/40"
+                        : "bg-white hover:bg-geo-green/3 border-border/40 hover:border-geo-green/30"
+                      }`}
+                  >
                     <span className="text-sm">{t.icon}</span>
                     <span className="text-xs font-medium">{t.label}</span>
                   </button>
                 ))}
               </div>
+              {errors.observationType && <p className="text-[11px] text-destructive mt-1">{errors.observationType}</p>}
             </div>
 
             {/* Mangrove Status */}
@@ -127,28 +282,42 @@ export default function EcoObservation() {
               <div className="grid grid-cols-2 gap-2">
                 {MANGROVE_STATUS.map(s => (
                   <button
+                    type="button"
                     key={s.label}
-                    onClick={() => setStatus(s.label)}
-                    className={`p-3 rounded-xl text-left border-2 transition-all ${
-                      status === s.label ? s.color + " ring-2 ring-geo-green/15" : "border-border/30 bg-white hover:bg-secondary/30"
-                    }`}
+                    onClick={() => updateField("status", s.label)}
+                    className={`p-3 rounded-xl text-left border-2 transition-all ${form.status === s.label ? s.color + " ring-2 ring-geo-green/15" : "border-border/30 bg-white hover:bg-secondary/30"
+                      }`}
                   >
                     <div className="text-xs font-medium">{s.label}</div>
                   </button>
                 ))}
               </div>
+              {errors.status && <p className="text-[11px] text-destructive mt-1">{errors.status}</p>}
             </div>
 
             {/* Water Body */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">Nearby water body</label>
-              <input type="text" placeholder="e.g. Estero Salado, unnamed canal..." className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all" />
+              <input
+                type="text"
+                value={form.waterBody}
+                onChange={(event) => updateField("waterBody", event.target.value)}
+                placeholder="e.g. Estero Salado, unnamed canal..."
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all"
+              />
             </div>
 
             {/* Notes */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">Observation details</label>
-              <textarea rows={3} placeholder="Describe what you observed. Any details about vegetation, water, wildlife, or land use..." className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 focus:ring-2 focus:ring-geo-green/10 transition-all resize-none" />
+              <textarea
+                rows={3}
+                value={form.notes}
+                onChange={(event) => updateField("notes", event.target.value)}
+                placeholder="Describe what you observed. Any details about vegetation, water, wildlife, or land use..."
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 focus:ring-2 focus:ring-geo-green/10 transition-all resize-none"
+              />
+              {errors.notes && <p className="text-[11px] text-destructive mt-1">{errors.notes}</p>}
             </div>
 
             {/* Restoration Opportunity */}
@@ -156,27 +325,44 @@ export default function EcoObservation() {
               <label className="text-xs font-semibold text-foreground mb-2 block">
                 <Eye size={11} className="inline mr-1" />Restoration potential?
               </label>
-              <textarea rows={2} placeholder="Do you think this area could benefit from restoration? Why?" className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all resize-none" />
+              <textarea
+                rows={2}
+                value={form.restorationPotential}
+                onChange={(event) => updateField("restorationPotential", event.target.value)}
+                placeholder="Do you think this area could benefit from restoration? Why?"
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all resize-none"
+              />
             </div>
 
             {/* Photo */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">Photo evidence</label>
-              <div className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:border-geo-green/30 transition-colors cursor-pointer bg-white">
+              <label className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:border-geo-green/30 transition-colors cursor-pointer bg-white block">
                 <Upload size={24} className="text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground font-medium">Drag & drop or click to upload</p>
                 <p className="text-[10px] text-muted-foreground/60 mt-1">JPG, PNG up to 10MB</p>
-              </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  multiple
+                  className="hidden"
+                  onChange={(event) => handlePhotoSelection(event.target.files)}
+                />
+              </label>
+              {form.photos.length > 0 && (
+                <p className="text-[11px] text-muted-foreground mt-1">{form.photos.length} photo(s) selected</p>
+              )}
             </div>
 
             <button
-              onClick={() => setSubmitted(true)}
+              type="submit"
+              disabled={isSubmitting}
               className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-geo-green text-white rounded-xl text-sm font-bold hover:bg-geo-green/90 transition-colors shadow-lg"
             >
               <Send size={15} />
-              Submit Observation
+              {isSubmitting ? "Submitting..." : "Submit Observation"}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

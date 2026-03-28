@@ -21,6 +21,92 @@ import {
   type ComputedIntervention,
 } from "./priority-engine";
 
+const LOCAL_REPORTS_KEY = "verdagua.localReports.v1";
+const LOCAL_VALIDATIONS_KEY = "verdagua.reportValidations.v1";
+
+const isBrowser = typeof window !== "undefined";
+
+function readFromStorage<T>(key: string, fallback: T): T {
+  if (!isBrowser) return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeToStorage<T>(key: string, value: T) {
+  if (!isBrowser) return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage failures in prototype mode
+  }
+}
+
+function severityWeight(severity: string) {
+  if (severity === "critical") return 8;
+  if (severity === "high") return 5;
+  if (severity === "medium") return 3;
+  return 1;
+}
+
+function baseValidationSeed(report: CitizenReport) {
+  return severityWeight(report.severity) + (report.photo_count ?? 0) + (report.verified ? 3 : 0);
+}
+
+function getAllReportsSync(): CitizenReport[] {
+  const localReports = readFromStorage<CitizenReport[]>(LOCAL_REPORTS_KEY, []);
+  const validationMap = readFromStorage<Record<string, number>>(LOCAL_VALIDATIONS_KEY, {});
+
+  const merged = [...localReports, ...(reportsData.reports as CitizenReport[])];
+
+  return merged
+    .map((report) => {
+      const fallbackCount = report.validation_count ?? baseValidationSeed(report);
+      const extraValidations = validationMap[report.id] ?? 0;
+      return {
+        ...report,
+        validation_count: fallbackCount + extraValidations,
+      };
+    })
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
+function computeDateRange(reports: CitizenReport[]) {
+  if (reports.length === 0) {
+    const now = new Date().toISOString().slice(0, 10);
+    return { from: now, to: now };
+  }
+
+  const timestamps = reports.map((report) => new Date(report.timestamp).getTime()).filter((value) => Number.isFinite(value));
+  const minTs = Math.min(...timestamps);
+  const maxTs = Math.max(...timestamps);
+
+  return {
+    from: new Date(minTs).toISOString().slice(0, 10),
+    to: new Date(maxTs).toISOString().slice(0, 10),
+  };
+}
+
+function generateReportId(existingReports: CitizenReport[]) {
+  return `local-${Date.now()}-${existingReports.length + 1}`;
+}
+
+function defaultCoordinatesForZone(zoneId: string) {
+  const zone = zones.find((item) => item.id === zoneId);
+  if (!zone) return { lat: -2.18, lng: -79.92 };
+
+  const latOffset = (Math.random() - 0.5) * 0.01;
+  const lngOffset = (Math.random() - 0.5) * 0.01;
+  return {
+    lat: zone.lat + latOffset,
+    lng: zone.lng + lngOffset,
+  };
+}
+
 // Simulate network delay (300–800ms)
 const delay = () => new Promise<void>(resolve => {
   setTimeout(resolve, 300 + Math.random() * 500);
@@ -91,7 +177,7 @@ export async function getMangroveLayer(): Promise<{
       total_functional_ha: functional.reduce((s, f) => s + f.area_hectares, 0),
       total_degraded_ha: degraded.reduce((s, f) => s + f.area_hectares, 0),
       total_lost_ha: lost.reduce((s, f) => s + f.original_area_hectares, 0),
-      net_change_ha: functional.reduce((s, f) => s + f.area_hectares, 0) - 
+      net_change_ha: functional.reduce((s, f) => s + f.area_hectares, 0) -
         features.reduce((s, f) => s + f.original_area_hectares, 0),
     },
   };
@@ -135,22 +221,93 @@ export interface CitizenReport {
   description: string;
   verified: boolean;
   photo_count: number;
+  validation_count?: number;
+}
+
+export interface CreateCitizenReportInput {
+  type: "flood" | "ecological";
+  zone_id: string;
+  severity: "low" | "medium" | "high" | "critical";
+  description: string;
+  water_height_cm?: number | null;
+  lat?: number;
+  lng?: number;
+  photo_count?: number;
+  verified?: boolean;
+}
+
+export async function submitCitizenReport(input: CreateCitizenReportInput): Promise<CitizenReport> {
+  await delay();
+
+  const allReports = getAllReportsSync();
+  const localReports = readFromStorage<CitizenReport[]>(LOCAL_REPORTS_KEY, []);
+  const fallbackCoordinates = defaultCoordinatesForZone(input.zone_id);
+
+  const nextReport: CitizenReport = {
+    id: generateReportId(allReports),
+    type: input.type,
+    zone_id: input.zone_id,
+    lat: input.lat ?? fallbackCoordinates.lat,
+    lng: input.lng ?? fallbackCoordinates.lng,
+    severity: input.severity,
+    water_height_cm: input.water_height_cm ?? null,
+    timestamp: new Date().toISOString(),
+    description: input.description.trim(),
+    verified: input.verified ?? false,
+    photo_count: Math.max(0, input.photo_count ?? 0),
+    validation_count: 0,
+  };
+
+  writeToStorage(LOCAL_REPORTS_KEY, [nextReport, ...localReports]);
+  return nextReport;
+}
+
+export async function validateCitizenReport(reportId: string): Promise<number> {
+  await delay();
+
+  const currentMap = readFromStorage<Record<string, number>>(LOCAL_VALIDATIONS_KEY, {});
+  const nextMap = {
+    ...currentMap,
+    [reportId]: (currentMap[reportId] ?? 0) + 1,
+  };
+
+  writeToStorage(LOCAL_VALIDATIONS_KEY, nextMap);
+
+  const report = getAllReportsSync().find((item) => item.id === reportId);
+  return report?.validation_count ?? nextMap[reportId];
 }
 
 export async function getReports(): Promise<{
-  metadata: typeof reportsData.metadata;
+  metadata: {
+    total_reports: number;
+    flood_reports: number;
+    ecological_reports: number;
+    date_range: { from: string; to: string };
+    source: string;
+  };
   reports: CitizenReport[];
 }> {
   await delay();
+
+  const allReports = getAllReportsSync();
+  const floodReports = allReports.filter((report) => report.type === "flood").length;
+  const ecologicalReports = allReports.filter((report) => report.type === "ecological").length;
+
   return {
-    metadata: reportsData.metadata,
-    reports: reportsData.reports as CitizenReport[],
+    metadata: {
+      total_reports: allReports.length,
+      flood_reports: floodReports,
+      ecological_reports: ecologicalReports,
+      date_range: computeDateRange(allReports),
+      source: "Citizen reporting system (mock + local prototype)",
+    },
+    reports: allReports,
   };
 }
 
 export async function getReportsByZone(zoneId: string): Promise<CitizenReport[]> {
   await delay();
-  return (reportsData.reports as CitizenReport[]).filter(r => r.zone_id === zoneId);
+  return getAllReportsSync().filter(r => r.zone_id === zoneId);
 }
 
 // ─── Priority Score ───
@@ -183,7 +340,7 @@ export async function getZoneAnalysis(zoneId: string): Promise<ZoneAnalysis | nu
   const mockZone = zonesMockData.find(z => z.id === zoneId);
   if (!mockZone) return null;
 
-  const zoneReports = reportsData.reports.filter(r => r.zone_id === zoneId);
+  const zoneReports = getAllReportsSync().filter(r => r.zone_id === zoneId);
   const zoneMangroves = mangroveData.features.filter(f => f.properties.zone_id === zoneId);
 
   const score = computePriorityScore(mockZone as any);
@@ -225,22 +382,28 @@ export async function getDashboardMetrics(): Promise<typeof dashboardData & {
 }> {
   await delay();
 
+  const allReports = getAllReportsSync();
+  const floodCount = allReports.filter(report => report.type === "flood").length;
+  const ecologicalCount = allReports.filter(report => report.type === "ecological").length;
+
   const functional = mangroveData.features.filter(f => f.properties.status === "functional");
   const degraded = mangroveData.features.filter(f => f.properties.status === "degraded");
   const lost = mangroveData.features.filter(f => f.properties.status === "lost");
 
-  const criticalReports = reportsData.reports.filter(r => r.severity === "critical");
+  const criticalReports = allReports.filter(r => r.severity === "critical");
 
   return {
     ...dashboardData,
+    floodReports: floodCount,
+    ecologicalObservations: ecologicalCount,
     mangrove_summary: {
       total_functional_ha: realSummary.mangrove_area_ha["2022"],
       total_degraded_ha: Math.abs(realSummary.net_change_ha["2018_to_2022"]),
       total_lost_ha: realSummary.change_guayas_2018_2020["POSSIBLE LOSS"] + realSummary.change_guayas_2020_2022["POSSIBLE LOSS"],
     },
     report_summary: {
-      flood: reportsData.metadata.flood_reports,
-      ecological: reportsData.metadata.ecological_reports,
+      flood: floodCount,
+      ecological: ecologicalCount,
       critical: criticalReports.length,
     },
   };

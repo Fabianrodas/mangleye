@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
 import { Droplets, MapPin, Calendar, Camera, AlertTriangle, ChevronLeft, Send, Upload, CloudRain, Waves, TreePine } from "lucide-react";
 import floodImg from "@/assets/flooding-street.jpg";
+import { zones } from "@/data/zones";
+import { submitCitizenReport } from "@/api/mock-api";
+import { toast } from "@/hooks/use-toast";
 
 const SEVERITY_LEVELS = [
   { label: "Minor", desc: "Puddles, minor road wetting", color: "border-geo-green/30 hover:border-geo-green bg-geo-green/3" },
@@ -14,9 +17,155 @@ const SEVERITY_LEVELS = [
 const IMPACT_TYPES = ["Road blockage", "Property damage", "Health hazard", "Displacement", "Infrastructure damage", "Other"];
 const FREQUENCY = ["First time", "Occasional", "Frequent (monthly)", "Very frequent (weekly+)"];
 
+type FloodFormState = {
+  title: string;
+  location: string;
+  zoneId: string;
+  severity: string;
+  date: string;
+  waterHeightCm: string;
+  frequency: string;
+  impacts: string[];
+  details: string;
+  photos: File[];
+};
+
+type FloodFormErrors = Partial<Record<keyof FloodFormState, string>>;
+
+const initialState: FloodFormState = {
+  title: "",
+  location: "",
+  zoneId: "",
+  severity: "",
+  date: new Date().toISOString().slice(0, 10),
+  waterHeightCm: "",
+  frequency: "",
+  impacts: [],
+  details: "",
+  photos: [],
+};
+
+const severityToApi: Record<string, "low" | "medium" | "high" | "critical"> = {
+  Minor: "low",
+  Moderate: "medium",
+  Severe: "high",
+  Critical: "critical",
+};
+
+function parseWaterHeight(value: string) {
+  const cleaned = value.replace(/[^\d]/g, "");
+  if (!cleaned) return null;
+  const number = Number(cleaned);
+  return Number.isFinite(number) ? number : null;
+}
+
+function validateFloodForm(state: FloodFormState): FloodFormErrors {
+  const nextErrors: FloodFormErrors = {};
+
+  if (state.title.trim().length < 8) {
+    nextErrors.title = "Please add a short title (min 8 characters).";
+  }
+  if (!state.zoneId) {
+    nextErrors.zoneId = "Please select a zone.";
+  }
+  if (!state.location.trim()) {
+    nextErrors.location = "Please enter a reference location.";
+  }
+  if (!state.severity) {
+    nextErrors.severity = "Please choose a severity level.";
+  }
+  if (!state.date) {
+    nextErrors.date = "Please select a date.";
+  }
+  if (!state.frequency) {
+    nextErrors.frequency = "Please indicate how often this happens.";
+  }
+  if (state.impacts.length === 0) {
+    nextErrors.impacts = "Select at least one impact type.";
+  }
+  if (state.details.trim().length < 12) {
+    nextErrors.details = "Please provide more details (min 12 characters).";
+  }
+
+  return nextErrors;
+}
+
 export default function FloodReport() {
   const [submitted, setSubmitted] = useState(false);
-  const [severity, setSeverity] = useState("");
+  const [reportId, setReportId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState<FloodFormState>(initialState);
+  const [errors, setErrors] = useState<FloodFormErrors>({});
+
+  const updateField = <K extends keyof FloodFormState>(field: K, value: FloodFormState[K]) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const toggleImpact = (impact: string) => {
+    setForm(prev => {
+      const exists = prev.impacts.includes(impact);
+      const impacts = exists ? prev.impacts.filter(item => item !== impact) : [...prev.impacts, impact];
+      return { ...prev, impacts };
+    });
+    setErrors(prev => ({ ...prev, impacts: undefined }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const validation = validateFloodForm(form);
+
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      toast({
+        title: "Incomplete report",
+        description: "Please complete the required fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const waterHeight = parseWaterHeight(form.waterHeightCm);
+      const report = await submitCitizenReport({
+        type: "flood",
+        zone_id: form.zoneId,
+        severity: severityToApi[form.severity],
+        description: [
+          form.title.trim(),
+          `Location: ${form.location.trim()}`,
+          `Frequency: ${form.frequency}`,
+          `Impacts: ${form.impacts.join(", ")}`,
+          form.details.trim(),
+        ].join(" · "),
+        water_height_cm: waterHeight,
+        photo_count: form.photos.length,
+      });
+
+      setReportId(report.id);
+      setSubmitted(true);
+      setForm(initialState);
+      setErrors({});
+      toast({
+        title: "Report submitted",
+        description: "Your flood report is now available in the platform data.",
+      });
+    } catch {
+      toast({
+        title: "Submission failed",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePhotoSelection = (files: FileList | null) => {
+    if (!files) return;
+    updateField("photos", Array.from(files));
+  };
 
   if (submitted) {
     return (
@@ -27,9 +176,19 @@ export default function FloodReport() {
             <Droplets size={32} className="text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">Report Submitted</h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Thank you for contributing to flood visibility in Guayaquil. Your report will be reviewed and added to the platform's analysis.</p>
+          <p className="text-sm text-muted-foreground mb-2 max-w-sm mx-auto">Thank you for contributing to flood visibility in Guayaquil. Your report is now part of the prototype dataset.</p>
+          <p className="text-xs font-mono text-primary mb-8">Tracking ID: {reportId}</p>
           <div className="flex gap-3 justify-center">
-            <button onClick={() => setSubmitted(false)} className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium">Submit Another</button>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setReportId("");
+              }}
+              className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium"
+            >
+              Submit Another
+            </button>
+            <Link to="/community" className="px-5 py-2.5 text-sm bg-secondary rounded-lg hover:bg-secondary/80 transition-colors font-medium">Community</Link>
             <Link to="/map" className="px-5 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">View Map</Link>
           </div>
         </div>
@@ -89,11 +248,18 @@ export default function FloodReport() {
           </div>
 
           {/* Right: Form */}
-          <div className="md:col-span-3 space-y-5">
+          <form className="md:col-span-3 space-y-5" onSubmit={handleSubmit}>
             {/* Title */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">What happened?</label>
-              <input type="text" placeholder="e.g. Severe flooding after 2 hours of rain on main road..." className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all" />
+              <input
+                type="text"
+                value={form.title}
+                onChange={(event) => updateField("title", event.target.value)}
+                placeholder="e.g. Severe flooding after 2 hours of rain on main road..."
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+              />
+              {errors.title && <p className="text-[11px] text-destructive mt-1">{errors.title}</p>}
             </div>
 
             {/* Location */}
@@ -101,8 +267,26 @@ export default function FloodReport() {
               <label className="text-xs font-semibold text-foreground mb-2 block">Where is it?</label>
               <div className="flex items-center gap-2 mb-2">
                 <MapPin size={14} className="text-muted-foreground" />
-                <input type="text" placeholder="Search for a place or address" className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all" />
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(event) => updateField("location", event.target.value)}
+                  placeholder="Search for a place or address"
+                  className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+                />
               </div>
+              {errors.location && <p className="text-[11px] text-destructive mb-2">{errors.location}</p>}
+              <select
+                value={form.zoneId}
+                onChange={(event) => updateField("zoneId", event.target.value)}
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all mb-2"
+              >
+                <option value="">Select zone</option>
+                {zones.map(zone => (
+                  <option key={zone.id} value={zone.id}>{zone.name}</option>
+                ))}
+              </select>
+              {errors.zoneId && <p className="text-[11px] text-destructive mb-2">{errors.zoneId}</p>}
               <div className="h-44 bg-secondary/20 rounded-xl flex items-center justify-center border border-border/40 border-dashed">
                 <span className="text-xs text-muted-foreground">Click on the map to set exact point</span>
               </div>
@@ -114,17 +298,18 @@ export default function FloodReport() {
               <div className="grid grid-cols-2 gap-2">
                 {SEVERITY_LEVELS.map(s => (
                   <button
+                    type="button"
                     key={s.label}
-                    onClick={() => setSeverity(s.label)}
-                    className={`p-3 rounded-xl text-left border-2 transition-all ${
-                      severity === s.label ? s.color.replace("hover:", "") + " ring-2 ring-primary/15" : "border-border/30 bg-white hover:bg-secondary/30"
-                    }`}
+                    onClick={() => updateField("severity", s.label)}
+                    className={`p-3 rounded-xl text-left border-2 transition-all ${form.severity === s.label ? s.color.replace("hover:", "") + " ring-2 ring-primary/15" : "border-border/30 bg-white hover:bg-secondary/30"
+                      }`}
                   >
                     <div className="text-sm font-semibold">{s.label}</div>
                     <div className="text-[10px] text-muted-foreground">{s.desc}</div>
                   </button>
                 ))}
               </div>
+              {errors.severity && <p className="text-[11px] text-destructive mt-1">{errors.severity}</p>}
             </div>
 
             {/* Date & Water Height */}
@@ -133,11 +318,23 @@ export default function FloodReport() {
                 <label className="text-xs font-semibold text-foreground mb-2 block">
                   <Calendar size={11} className="inline mr-1" />When?
                 </label>
-                <input type="date" className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all" />
+                <input
+                  type="date"
+                  value={form.date}
+                  onChange={(event) => updateField("date", event.target.value)}
+                  className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all"
+                />
+                {errors.date && <p className="text-[11px] text-destructive mt-1">{errors.date}</p>}
               </div>
               <div>
                 <label className="text-xs font-semibold text-foreground mb-2 block">Water height</label>
-                <input type="text" placeholder="e.g. 30cm, knee-height" className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all" />
+                <input
+                  type="text"
+                  value={form.waterHeightCm}
+                  onChange={(event) => updateField("waterHeightCm", event.target.value)}
+                  placeholder="e.g. 30cm, knee-height"
+                  className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all"
+                />
               </div>
             </div>
 
@@ -146,11 +343,20 @@ export default function FloodReport() {
               <label className="text-xs font-semibold text-foreground mb-2 block">How often does this happen?</label>
               <div className="flex flex-wrap gap-2">
                 {FREQUENCY.map(f => (
-                  <button key={f} className="px-3 py-2 text-xs font-medium rounded-xl bg-white hover:bg-secondary/50 border border-border/40 hover:border-primary/30 transition-all">
+                  <button
+                    type="button"
+                    key={f}
+                    onClick={() => updateField("frequency", f)}
+                    className={`px-3 py-2 text-xs font-medium rounded-xl border transition-all ${form.frequency === f
+                        ? "bg-primary/10 border-primary/40 text-primary"
+                        : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
+                      }`}
+                  >
                     {f}
                   </button>
                 ))}
               </div>
+              {errors.frequency && <p className="text-[11px] text-destructive mt-1">{errors.frequency}</p>}
             </div>
 
             {/* Impact Type */}
@@ -158,17 +364,33 @@ export default function FloodReport() {
               <label className="text-xs font-semibold text-foreground mb-2 block">What was affected?</label>
               <div className="flex flex-wrap gap-2">
                 {IMPACT_TYPES.map(t => (
-                  <button key={t} className="px-3 py-2 text-xs font-medium rounded-xl bg-white hover:bg-secondary/50 border border-border/40 hover:border-primary/30 transition-all">
+                  <button
+                    type="button"
+                    key={t}
+                    onClick={() => toggleImpact(t)}
+                    className={`px-3 py-2 text-xs font-medium rounded-xl border transition-all ${form.impacts.includes(t)
+                        ? "bg-primary/10 border-primary/40 text-primary"
+                        : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
+                      }`}
+                  >
                     {t}
                   </button>
                 ))}
               </div>
+              {errors.impacts && <p className="text-[11px] text-destructive mt-1">{errors.impacts}</p>}
             </div>
 
             {/* Description */}
             <div>
               <label className="text-xs font-semibold text-foreground mb-2 block">Additional details</label>
-              <textarea rows={3} placeholder="Describe what you observed — water source, duration, blocked drains, affected buildings..." className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all resize-none" />
+              <textarea
+                rows={3}
+                value={form.details}
+                onChange={(event) => updateField("details", event.target.value)}
+                placeholder="Describe what you observed — water source, duration, blocked drains, affected buildings..."
+                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all resize-none"
+              />
+              {errors.details && <p className="text-[11px] text-destructive mt-1">{errors.details}</p>}
             </div>
 
             {/* Photo Upload */}
@@ -176,22 +398,33 @@ export default function FloodReport() {
               <label className="text-xs font-semibold text-foreground mb-2 block">
                 <Camera size={11} className="inline mr-1" />Photo evidence
               </label>
-              <div className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer bg-white">
+              <label className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer bg-white block">
                 <Upload size={24} className="text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground font-medium">Drag & drop or click to upload</p>
                 <p className="text-[10px] text-muted-foreground/60 mt-1">JPG, PNG up to 10MB · Photos strengthen your report</p>
-              </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  multiple
+                  className="hidden"
+                  onChange={(event) => handlePhotoSelection(event.target.files)}
+                />
+              </label>
+              {form.photos.length > 0 && (
+                <p className="text-[11px] text-muted-foreground mt-1">{form.photos.length} photo(s) selected</p>
+              )}
             </div>
 
             {/* Submit */}
             <button
-              onClick={() => setSubmitted(true)}
+              type="submit"
+              disabled={isSubmitting}
               className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-destructive text-white rounded-xl text-sm font-bold hover:bg-destructive/90 transition-colors shadow-lg"
             >
               <Send size={15} />
-              Submit Flood Report
+              {isSubmitting ? "Submitting..." : "Submit Flood Report"}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
