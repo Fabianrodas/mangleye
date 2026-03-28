@@ -1,11 +1,12 @@
 import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
-import { Droplets, MapPin, Calendar, Camera, AlertTriangle, ChevronLeft, Send, Upload, CloudRain, Waves, TreePine } from "lucide-react";
+import { Droplets, Calendar, Camera, AlertTriangle, ChevronLeft, Send, Upload, CloudRain, Waves, TreePine } from "lucide-react";
 import floodImg from "@/assets/flooding-street.jpg";
 import { zones } from "@/data/zones";
 import { submitCitizenReport } from "@/api/mock-api";
 import { toast } from "@/hooks/use-toast";
+import ZoneLocationSelector, { getNearestPriorityZone, type LocationMode, type MapPoint } from "@/components/ZoneLocationSelector";
 
 const SEVERITY_LEVELS = [
   { label: "Minor", desc: "Puddles, minor road wetting", color: "border-geo-green/30 hover:border-geo-green bg-geo-green/3" },
@@ -19,7 +20,6 @@ const FREQUENCY = ["First time", "Occasional", "Frequent (monthly)", "Very frequ
 
 type FloodFormState = {
   title: string;
-  location: string;
   zoneId: string;
   severity: string;
   date: string;
@@ -30,11 +30,10 @@ type FloodFormState = {
   photos: File[];
 };
 
-type FloodFormErrors = Partial<Record<keyof FloodFormState, string>>;
+type FloodFormErrors = Partial<Record<keyof FloodFormState | "locationChoice", string>>;
 
 const initialState: FloodFormState = {
   title: "",
-  location: "",
   zoneId: "",
   severity: "",
   date: new Date().toISOString().slice(0, 10),
@@ -59,17 +58,17 @@ function parseWaterHeight(value: string) {
   return Number.isFinite(number) ? number : null;
 }
 
-function validateFloodForm(state: FloodFormState): FloodFormErrors {
+function validateFloodForm(state: FloodFormState, locationMode: LocationMode, selectedPoint: MapPoint | null): FloodFormErrors {
   const nextErrors: FloodFormErrors = {};
 
   if (state.title.trim().length < 8) {
     nextErrors.title = "Please add a short title (min 8 characters).";
   }
-  if (!state.zoneId) {
+  if (locationMode === "existing" && !state.zoneId) {
     nextErrors.zoneId = "Please select a zone.";
   }
-  if (!state.location.trim()) {
-    nextErrors.location = "Please enter a reference location.";
+  if (locationMode === "new" && !selectedPoint) {
+    nextErrors.locationChoice = "Please select a location on the map.";
   }
   if (!state.severity) {
     nextErrors.severity = "Please choose a severity level.";
@@ -96,6 +95,8 @@ export default function FloodReport() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FloodFormState>(initialState);
   const [errors, setErrors] = useState<FloodFormErrors>({});
+  const [locationMode, setLocationMode] = useState<LocationMode>("existing");
+  const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
 
   const updateField = <K extends keyof FloodFormState>(field: K, value: FloodFormState[K]) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -113,7 +114,7 @@ export default function FloodReport() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const validation = validateFloodForm(form);
+    const validation = validateFloodForm(form, locationMode, selectedPoint);
 
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
@@ -127,19 +128,39 @@ export default function FloodReport() {
 
     setIsSubmitting(true);
     try {
+      const nearestZone = selectedPoint ? getNearestPriorityZone(selectedPoint) : null;
+      const resolvedZoneId = locationMode === "existing" ? form.zoneId : nearestZone?.id;
+
+      if (!resolvedZoneId) {
+        setErrors({ locationChoice: "Unable to resolve a zone from map selection." });
+        toast({
+          title: "Location not resolved",
+          description: "Please select a point on the map again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const selectedZone = zones.find(zone => zone.id === resolvedZoneId);
       const waterHeight = parseWaterHeight(form.waterHeightCm);
+      const locationNote = locationMode === "existing"
+        ? `Existing priority zone: ${selectedZone?.name ?? resolvedZoneId}`
+        : `New map location: ${selectedPoint?.lat.toFixed(5)}, ${selectedPoint?.lng.toFixed(5)} (nearest priority zone: ${selectedZone?.name ?? resolvedZoneId})`;
+
       const report = await submitCitizenReport({
         type: "flood",
-        zone_id: form.zoneId,
+        zone_id: resolvedZoneId,
         severity: severityToApi[form.severity],
         description: [
           form.title.trim(),
-          `Location: ${form.location.trim()}`,
+          locationNote,
           `Frequency: ${form.frequency}`,
           `Impacts: ${form.impacts.join(", ")}`,
           form.details.trim(),
         ].join(" · "),
         water_height_cm: waterHeight,
+        lat: selectedPoint?.lat,
+        lng: selectedPoint?.lng,
         photo_count: form.photos.length,
       });
 
@@ -147,6 +168,8 @@ export default function FloodReport() {
       setSubmitted(true);
       setForm(initialState);
       setErrors({});
+      setLocationMode("existing");
+      setSelectedPoint(null);
       toast({
         title: "Report submitted",
         description: "Your flood report is now available in the platform data.",
@@ -264,32 +287,22 @@ export default function FloodReport() {
 
             {/* Location */}
             <div>
-              <label className="text-xs font-semibold text-foreground mb-2 block">Where is it?</label>
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin size={14} className="text-muted-foreground" />
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(event) => updateField("location", event.target.value)}
-                  placeholder="Search for a place or address"
-                  className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
-                />
-              </div>
-              {errors.location && <p className="text-[11px] text-destructive mb-2">{errors.location}</p>}
-              <select
-                value={form.zoneId}
-                onChange={(event) => updateField("zoneId", event.target.value)}
-                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-primary/50 transition-all mb-2"
-              >
-                <option value="">Select zone</option>
-                {zones.map(zone => (
-                  <option key={zone.id} value={zone.id}>{zone.name}</option>
-                ))}
-              </select>
-              {errors.zoneId && <p className="text-[11px] text-destructive mb-2">{errors.zoneId}</p>}
-              <div className="h-44 bg-secondary/20 rounded-xl flex items-center justify-center border border-border/40 border-dashed">
-                <span className="text-xs text-muted-foreground">Click on the map to set exact point</span>
-              </div>
+              <ZoneLocationSelector
+                mode={locationMode}
+                selectedZoneId={form.zoneId}
+                selectedPoint={selectedPoint}
+                onModeChange={(mode) => {
+                  setLocationMode(mode);
+                  setErrors(prev => ({ ...prev, zoneId: undefined, locationChoice: undefined }));
+                }}
+                onZoneChange={(zoneId) => updateField("zoneId", zoneId)}
+                onPointChange={(point) => {
+                  setSelectedPoint(point);
+                  setErrors(prev => ({ ...prev, locationChoice: undefined }));
+                }}
+                error={errors.locationChoice || errors.zoneId}
+                accentClassName="border-destructive/40 text-destructive"
+              />
             </div>
 
             {/* Severity */}
@@ -348,8 +361,8 @@ export default function FloodReport() {
                     key={f}
                     onClick={() => updateField("frequency", f)}
                     className={`px-3 py-2 text-xs font-medium rounded-xl border transition-all ${form.frequency === f
-                        ? "bg-primary/10 border-primary/40 text-primary"
-                        : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
+                      ? "bg-primary/10 border-primary/40 text-primary"
+                      : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
                       }`}
                   >
                     {f}
@@ -369,8 +382,8 @@ export default function FloodReport() {
                     key={t}
                     onClick={() => toggleImpact(t)}
                     className={`px-3 py-2 text-xs font-medium rounded-xl border transition-all ${form.impacts.includes(t)
-                        ? "bg-primary/10 border-primary/40 text-primary"
-                        : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
+                      ? "bg-primary/10 border-primary/40 text-primary"
+                      : "bg-white hover:bg-secondary/50 border-border/40 hover:border-primary/30"
                       }`}
                   >
                     {t}

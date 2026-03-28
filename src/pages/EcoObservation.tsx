@@ -1,11 +1,12 @@
 import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
-import { TreePine, MapPin, ChevronLeft, Send, Upload, Eye, Droplets, AlertTriangle, Leaf, Waves } from "lucide-react";
+import { TreePine, ChevronLeft, Send, Upload, Eye, Droplets, AlertTriangle, Leaf, Waves } from "lucide-react";
 import mangroveImg from "@/assets/mangrove-estuary.jpg";
 import { zones } from "@/data/zones";
 import { submitCitizenReport } from "@/api/mock-api";
 import { toast } from "@/hooks/use-toast";
+import ZoneLocationSelector, { getNearestPriorityZone, type LocationMode, type MapPoint } from "@/components/ZoneLocationSelector";
 
 const OBS_TYPES = [
   { label: "Mangrove presence", icon: "🌿" },
@@ -24,7 +25,6 @@ const MANGROVE_STATUS = [
 ];
 
 type EcoFormState = {
-  location: string;
   zoneId: string;
   observationType: string;
   status: string;
@@ -34,10 +34,9 @@ type EcoFormState = {
   photos: File[];
 };
 
-type EcoFormErrors = Partial<Record<keyof EcoFormState, string>>;
+type EcoFormErrors = Partial<Record<keyof EcoFormState | "locationChoice", string>>;
 
 const initialState: EcoFormState = {
-  location: "",
   zoneId: "",
   observationType: "",
   status: "",
@@ -54,14 +53,14 @@ const statusToSeverity: Record<string, "low" | "medium" | "high" | "critical"> =
   Unknown: "low",
 };
 
-function validateEcoForm(state: EcoFormState): EcoFormErrors {
+function validateEcoForm(state: EcoFormState, locationMode: LocationMode, selectedPoint: MapPoint | null): EcoFormErrors {
   const nextErrors: EcoFormErrors = {};
 
-  if (!state.location.trim()) {
-    nextErrors.location = "Please provide a location reference.";
-  }
-  if (!state.zoneId) {
+  if (locationMode === "existing" && !state.zoneId) {
     nextErrors.zoneId = "Please select a zone.";
+  }
+  if (locationMode === "new" && !selectedPoint) {
+    nextErrors.locationChoice = "Please select a location on the map.";
   }
   if (!state.observationType) {
     nextErrors.observationType = "Please choose an observation type.";
@@ -82,6 +81,8 @@ export default function EcoObservation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<EcoFormState>(initialState);
   const [errors, setErrors] = useState<EcoFormErrors>({});
+  const [locationMode, setLocationMode] = useState<LocationMode>("existing");
+  const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
 
   const updateField = <K extends keyof EcoFormState>(field: K, value: EcoFormState[K]) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -90,7 +91,7 @@ export default function EcoObservation() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const validation = validateEcoForm(form);
+    const validation = validateEcoForm(form, locationMode, selectedPoint);
 
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
@@ -104,17 +105,38 @@ export default function EcoObservation() {
 
     setIsSubmitting(true);
     try {
+      const nearestZone = selectedPoint ? getNearestPriorityZone(selectedPoint) : null;
+      const resolvedZoneId = locationMode === "existing" ? form.zoneId : nearestZone?.id;
+
+      if (!resolvedZoneId) {
+        setErrors({ locationChoice: "Unable to resolve a zone from map selection." });
+        toast({
+          title: "Location not resolved",
+          description: "Please select a point on the map again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const selectedZone = zones.find(zone => zone.id === resolvedZoneId);
+      const locationNote = locationMode === "existing"
+        ? `Existing priority zone: ${selectedZone?.name ?? resolvedZoneId}`
+        : `New map location: ${selectedPoint?.lat.toFixed(5)}, ${selectedPoint?.lng.toFixed(5)} (nearest priority zone: ${selectedZone?.name ?? resolvedZoneId})`;
+
       const report = await submitCitizenReport({
         type: "ecological",
-        zone_id: form.zoneId,
+        zone_id: resolvedZoneId,
         severity: statusToSeverity[form.status],
         description: [
-          `${form.observationType} at ${form.location.trim()}`,
+          `${form.observationType}`,
+          locationNote,
           `Condition: ${form.status}`,
           form.waterBody ? `Water body: ${form.waterBody.trim()}` : null,
           form.notes.trim(),
           form.restorationPotential.trim() ? `Restoration: ${form.restorationPotential.trim()}` : null,
         ].filter(Boolean).join(" · "),
+        lat: selectedPoint?.lat,
+        lng: selectedPoint?.lng,
         photo_count: form.photos.length,
       });
 
@@ -122,6 +144,8 @@ export default function EcoObservation() {
       setSubmitted(true);
       setForm(initialState);
       setErrors({});
+      setLocationMode("existing");
+      setSelectedPoint(null);
       toast({
         title: "Observation submitted",
         description: "Your ecological report is now available in the platform data.",
@@ -226,32 +250,22 @@ export default function EcoObservation() {
           <form className="md:col-span-3 space-y-5" onSubmit={handleSubmit}>
             {/* Location */}
             <div>
-              <label className="text-xs font-semibold text-foreground mb-2 block">Where is this observation?</label>
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin size={14} className="text-muted-foreground" />
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(event) => updateField("location", event.target.value)}
-                  placeholder="Search or describe the location"
-                  className="flex-1 bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 focus:ring-2 focus:ring-geo-green/10 transition-all"
-                />
-              </div>
-              {errors.location && <p className="text-[11px] text-destructive mb-2">{errors.location}</p>}
-              <select
-                value={form.zoneId}
-                onChange={(event) => updateField("zoneId", event.target.value)}
-                className="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none border border-border/60 focus:border-geo-green/50 transition-all mb-2"
-              >
-                <option value="">Select zone</option>
-                {zones.map(zone => (
-                  <option key={zone.id} value={zone.id}>{zone.name}</option>
-                ))}
-              </select>
-              {errors.zoneId && <p className="text-[11px] text-destructive mb-2">{errors.zoneId}</p>}
-              <div className="h-44 bg-secondary/20 rounded-xl flex items-center justify-center border border-border/40 border-dashed">
-                <span className="text-xs text-muted-foreground">Click on map to set observation point</span>
-              </div>
+              <ZoneLocationSelector
+                mode={locationMode}
+                selectedZoneId={form.zoneId}
+                selectedPoint={selectedPoint}
+                onModeChange={(mode) => {
+                  setLocationMode(mode);
+                  setErrors(prev => ({ ...prev, zoneId: undefined, locationChoice: undefined }));
+                }}
+                onZoneChange={(zoneId) => updateField("zoneId", zoneId)}
+                onPointChange={(point) => {
+                  setSelectedPoint(point);
+                  setErrors(prev => ({ ...prev, locationChoice: undefined }));
+                }}
+                error={errors.locationChoice || errors.zoneId}
+                accentClassName="border-geo-green/40 text-geo-green"
+              />
             </div>
 
             {/* Observation Type */}
@@ -264,8 +278,8 @@ export default function EcoObservation() {
                     key={t.label}
                     onClick={() => updateField("observationType", t.label)}
                     className={`px-3 py-2.5 text-left rounded-xl border transition-all flex items-center gap-2 ${form.observationType === t.label
-                        ? "bg-geo-green/8 border-geo-green/40"
-                        : "bg-white hover:bg-geo-green/3 border-border/40 hover:border-geo-green/30"
+                      ? "bg-geo-green/8 border-geo-green/40"
+                      : "bg-white hover:bg-geo-green/3 border-border/40 hover:border-geo-green/30"
                       }`}
                   >
                     <span className="text-sm">{t.icon}</span>
