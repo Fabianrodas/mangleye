@@ -77,23 +77,32 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-white border border-border/60 rounded-xl shadow-sm;
+    @apply bg-card border border-border/50 rounded-2xl shadow-sm;
+    box-shadow: 0 1px 3px hsl(172 42% 24% / 0.04), 0 1px 2px hsl(172 42% 24% / 0.02);
   }
   .glass-panel-sm {
-    @apply bg-white border border-border/50 rounded-lg shadow-sm;
+    @apply bg-card border border-border/40 rounded-xl shadow-sm;
+  }
+  .glass-panel-elevated {
+    @apply bg-card border border-border/40 rounded-2xl;
+    box-shadow: 0 4px 24px hsl(192 22% 12% / 0.06), 0 1px 4px hsl(192 22% 12% / 0.04);
   }
   .glow-primary {
-    box-shadow: 0 0 20px hsl(172 42% 24% / 0.1), 0 0 60px hsl(172 42% 24% / 0.03);
+    box-shadow: 0 0 20px hsl(172 42% 24% / 0.12), 0 0 60px hsl(172 42% 24% / 0.04);
   }
   .glow-accent {
-    box-shadow: 0 0 20px hsl(200 38% 34% / 0.1);
+    box-shadow: 0 0 20px hsl(200 38% 34% / 0.12);
   }
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(172 42% 30%), hsl(200 38% 36%));
+    background-image: linear-gradient(135deg, hsl(172 42% 28%), hsl(200 38% 34%));
   }
   .score-gradient {
     background: linear-gradient(90deg, hsl(172 42% 24%), hsl(205 62% 42%), hsl(38 82% 46%));
+  }
+  .section-divider {
+    @apply border-t border-border/30;
+    margin: 2.5rem 0;
   }
 }
 
