@@ -3,7 +3,8 @@ import Header from "@/components/Header";
 import MapView from "@/components/MapView";
 import LayerFilters from "@/components/LayerFilters";
 import PriorityPanel from "@/components/PriorityPanel";
-import ZoneDetail from "@/components/ZoneDetail";
+import ZoneDetail, { ActionsTab } from "@/components/ZoneDetail";
+import { AnimatePresence, motion } from "framer-motion";
 import { type Zone, type LayerType } from "@/data/zones";
 import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -111,6 +112,24 @@ export default function MapExplorer() {
           </aside>
         )}
       </div>
+
+      {/* Actions bottom panel - outside sidebar, over the map */}
+      <AnimatePresence>
+        {selectedZone && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="absolute bottom-0 left-0 z-[1002] bg-white border-t border-border/60 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto max-h-[45%]"
+            style={{ right: sidebarOpen ? "380px" : 0 }}
+          >
+            <div className="p-4">
+              <ActionsTab zone={selectedZone} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
