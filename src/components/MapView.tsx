@@ -30,51 +30,140 @@ const getScoreColor = (score: number) => {
   return "#2A8060";
 };
 
+// Tree cluster SVGs for mangrove markers
+const createMangroveCluster = (density: "high" | "medium" | "low", color: string) => {
+  const trees = density === "high" ? 5 : density === "medium" ? 3 : 2;
+  const positions = [
+    [12, 8], [6, 14], [18, 14], [10, 18], [16, 20],
+  ].slice(0, trees);
+
+  const treePaths = positions.map(([x, y]) =>
+    `<g transform="translate(${x},${y})">
+      <path d="M0,-6 L-4,0 L-2,0 L-5,5 L5,5 L2,0 L4,0 Z" fill="${color}" opacity="0.85"/>
+      <rect x="-0.7" y="5" width="1.4" height="3" fill="#5D4037" opacity="0.6"/>
+    </g>`
+  ).join("");
+
+  return `<svg viewBox="0 0 24 28" width="36" height="42">${treePaths}</svg>`;
+};
+
+// Wave pattern for flood markers
+const createWaveMarker = (intensity: "High" | "Medium" | "Low", color: string) => {
+  const opacity = intensity === "High" ? "0.9" : intensity === "Medium" ? "0.7" : "0.5";
+  const waves = intensity === "High" ? 3 : intensity === "Medium" ? 2 : 1;
+  const wavePaths = [];
+  for (let i = 0; i < waves; i++) {
+    const y = 10 + i * 6;
+    wavePaths.push(
+      `<path d="M2,${y} Q8,${y - 4} 12,${y} Q16,${y + 4} 22,${y}" fill="none" stroke="${color}" stroke-width="${intensity === "High" ? 2.5 : 2}" stroke-linecap="round" opacity="${opacity}"/>`
+    );
+  }
+  return `<svg viewBox="0 0 24 28" width="32" height="36">${wavePaths.join("")}</svg>`;
+};
+
 const getZoneIcon = (zone: Zone, isSelected: boolean) => {
   const color = getScoreColor(zone.priorityScore);
-  const size = isSelected ? 28 : 20;
+  const size = isSelected ? 52 : 40;
   const hasMangrove = zone.layers.some(l => l.includes("mangrove"));
-  const isFlood = zone.floodLevel === "High";
+  const hasFlood = zone.floodLevel === "High" || zone.floodLevel === "Medium";
 
-  // SVG icon based on zone type
-  let iconSvg: string;
+  let iconHtml: string;
+
   if (hasMangrove) {
-    iconSvg = `<svg viewBox="0 0 24 24" width="${size * 0.6}" height="${size * 0.6}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v18"/><path d="M8 7l4-4 4 4"/><path d="M6 11l6-4 6 4"/><path d="M4 15l8-4 8 4"/></svg>`;
-  } else if (isFlood) {
-    iconSvg = `<svg viewBox="0 0 24 24" width="${size * 0.55}" height="${size * 0.55}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v6"/><path d="M12 12a4 4 0 0 1 0 8"/><path d="M12 12a4 4 0 0 0 0 8"/><path d="M4 18c0-2 1.5-3 3-3s3 1 3 3"/><path d="M14 18c0-2 1.5-3 3-3s3 1 3 3"/></svg>`;
+    const density = zone.layers.includes("functional-mangrove") ? "high"
+      : zone.layers.includes("degraded-mangrove") ? "medium" : "low";
+    const treeColor = zone.layers.includes("degraded-mangrove") ? "#D4A038" : "#2DB87A";
+    iconHtml = `<div style="
+      width:${size}px;height:${size}px;
+      background:hsl(158 45% 96%);
+      border:2px solid ${treeColor};
+      border-radius:${isSelected ? '14px' : '12px'};
+      box-shadow:0 3px 12px ${treeColor}30${isSelected ? ',0 0 0 4px ' + treeColor + '18' : ''};
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.2s;cursor:pointer;
+    ">${createMangroveCluster(density, treeColor)}</div>`;
+  } else if (hasFlood) {
+    iconHtml = `<div style="
+      width:${size}px;height:${size}px;
+      background:hsl(205 70% 96%);
+      border:2px solid ${color};
+      border-radius:${isSelected ? '14px' : '12px'};
+      box-shadow:0 3px 12px ${color}30${isSelected ? ',0 0 0 4px ' + color + '18' : ''};
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.2s;cursor:pointer;
+    ">${createWaveMarker(zone.floodLevel, color)}</div>`;
   } else {
-    iconSvg = `<svg viewBox="0 0 24 24" width="${size * 0.5}" height="${size * 0.5}" fill="${color}" opacity="0.8"><circle cx="12" cy="12" r="6"/></svg>`;
+    iconHtml = `<div style="
+      width:${size}px;height:${size}px;
+      background:white;
+      border:2.5px solid ${color};
+      border-radius:${isSelected ? '14px' : '50%'};
+      box-shadow:0 3px 12px ${color}25${isSelected ? ',0 0 0 4px ' + color + '18' : ''};
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.2s;cursor:pointer;
+    ">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="${color}" opacity="0.8"><circle cx="12" cy="12" r="6"/></svg>
+    </div>`;
   }
 
   return L.divIcon({
     className: "custom-marker",
-    html: `<div style="
-      width: ${size}px; height: ${size}px;
-      background: white;
-      border: 2.5px solid ${color};
-      border-radius: ${isSelected ? '10px' : '50%'};
-      box-shadow: 0 2px 8px ${color}40${isSelected ? ', 0 0 0 4px ' + color + '20' : ''};
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-      cursor: pointer;
-    ">${iconSvg}</div>`,
+    html: iconHtml,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
 };
 
-const getOverlayStyle = (layer: LayerType) => {
+// Create overlay patterns
+const createFloodOverlay = (zone: Zone, layer: LayerType) => {
   const color = LAYER_COLORS[layer];
-  if (layer === "flood-zones" || layer === "flood-reports") {
-    return { color, fillColor: color, fillOpacity: 0.12, weight: 1.5, opacity: 0.4, dashArray: "4 3" as string | undefined };
-  }
-  if (layer.includes("mangrove") || layer === "ecological-opportunity") {
-    return { color, fillColor: color, fillOpacity: 0.08, weight: 2, opacity: 0.5, dashArray: undefined };
-  }
-  if (layer === "priority-intervention") {
-    return { color, fillColor: color, fillOpacity: 0.15, weight: 2, opacity: 0.6, dashArray: "6 3" as string | undefined };
-  }
-  return { color, fillColor: color, fillOpacity: 0.08, weight: 1, opacity: 0.3, dashArray: undefined };
+  const intensity = zone.floodLevel;
+  const fillOpacity = intensity === "High" ? 0.18 : intensity === "Medium" ? 0.12 : 0.06;
+  const weight = intensity === "High" ? 2.5 : intensity === "Medium" ? 2 : 1.5;
+  const radius = layer === "flood-zones" ? 900 : 650;
+
+  return L.circle([zone.lat, zone.lng], {
+    radius,
+    color,
+    fillColor: color,
+    fillOpacity,
+    weight,
+    opacity: intensity === "High" ? 0.6 : 0.4,
+    dashArray: intensity === "High" ? undefined : "6 4",
+  });
+};
+
+const createMangroveOverlay = (zone: Zone, layer: LayerType) => {
+  const isFunctional = layer === "functional-mangrove";
+  const color = isFunctional ? "#2DB87A" : layer === "degraded-mangrove" ? "#D4A038" : "#2DD4BF";
+  const radius = isFunctional ? 1100 : 800;
+  const fillOpacity = isFunctional ? 0.12 : 0.08;
+
+  return L.circle([zone.lat, zone.lng], {
+    radius,
+    color,
+    fillColor: color,
+    fillOpacity,
+    weight: isFunctional ? 2.5 : 2,
+    opacity: isFunctional ? 0.5 : 0.4,
+    dashArray: isFunctional ? undefined : "4 4",
+  });
+};
+
+const createGenericOverlay = (zone: Zone, layer: LayerType) => {
+  const color = LAYER_COLORS[layer];
+  const isPriority = layer === "priority-intervention";
+  const radius = isPriority ? 750 : layer === "exposed-population" ? 600 : 500;
+
+  return L.circle([zone.lat, zone.lng], {
+    radius,
+    color,
+    fillColor: color,
+    fillOpacity: isPriority ? 0.16 : 0.08,
+    weight: isPriority ? 2.5 : 1.5,
+    opacity: isPriority ? 0.6 : 0.3,
+    dashArray: isPriority ? "8 4" : undefined,
+  });
 };
 
 export default function MapView({ activeLayers, selectedZone, onSelectZone }: MapViewProps) {
@@ -95,7 +184,7 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // Light Voyager tiles — readable, professional
+    // Light Voyager with labels — readable, professional
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
@@ -135,7 +224,7 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
         {
           className: "custom-tooltip",
           direction: "top",
-          offset: [0, -14],
+          offset: [0, -20],
         }
       );
 
@@ -150,18 +239,16 @@ export default function MapView({ activeLayers, selectedZone, onSelectZone }: Ma
     zones.forEach(zone => {
       zone.layers.forEach(layer => {
         if (!activeLayers.includes(layer)) return;
-        const style = getOverlayStyle(layer);
-        const radius = layer === "functional-mangrove" ? 1000
-          : layer === "flood-zones" ? 800
-          : layer === "exposed-population" ? 600
-          : layer === "priority-intervention" ? 700
-          : 500;
 
-        const circle = L.circle([zone.lat, zone.lng], {
-          radius,
-          ...style,
-        });
-        overlaysRef.current!.addLayer(circle);
+        let overlay: L.Circle;
+        if (layer === "flood-zones" || layer === "flood-reports") {
+          overlay = createFloodOverlay(zone, layer);
+        } else if (layer.includes("mangrove") || layer === "candidate-restoration" || layer === "ecological-opportunity") {
+          overlay = createMangroveOverlay(zone, layer);
+        } else {
+          overlay = createGenericOverlay(zone, layer);
+        }
+        overlaysRef.current!.addLayer(overlay);
       });
     });
   }, [activeLayers]);

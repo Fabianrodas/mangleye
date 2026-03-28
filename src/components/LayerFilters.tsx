@@ -19,9 +19,9 @@ const ICONS: Record<LayerType, React.ElementType> = {
 };
 
 const LAYER_GROUPS = [
-  { label: "Flooding", keys: ["flood-zones", "flood-reports"] as LayerType[] },
-  { label: "Water & Ecology", keys: ["estuaries", "functional-mangrove", "degraded-mangrove", "candidate-restoration", "ecological-opportunity"] as LayerType[] },
-  { label: "Urban & Analysis", keys: ["exposed-population", "urban-pressure", "permeability", "restoration-suitability", "priority-intervention"] as LayerType[] },
+  { label: "Flooding", keys: ["flood-zones", "flood-reports"] as LayerType[], color: "text-geo-blue" },
+  { label: "Water & Ecology", keys: ["estuaries", "functional-mangrove", "degraded-mangrove", "candidate-restoration", "ecological-opportunity"] as LayerType[], color: "text-geo-green" },
+  { label: "Urban & Analysis", keys: ["exposed-population", "urban-pressure", "permeability", "restoration-suitability", "priority-intervention"] as LayerType[], color: "text-geo-amber" },
 ];
 
 interface LayerFiltersProps {
@@ -35,13 +35,13 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
   const visibleGroups = expanded ? LAYER_GROUPS : LAYER_GROUPS.slice(0, 1);
 
   return (
-    <div className="glass-panel p-3 max-w-[480px]">
+    <div className="glass-panel p-3 max-w-[500px]">
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <Layers size={13} className="text-primary" />
-          <span className="text-[11px] font-semibold text-foreground">Layers</span>
+          <span className="text-[11px] font-bold text-foreground">Layers</span>
           {activeLayers.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-mono font-bold">
+            <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[10px] font-mono font-bold">
               {activeLayers.length}
             </span>
           )}
@@ -50,14 +50,14 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
           {activeLayers.length > 0 && (
             <button
               onClick={() => activeLayers.forEach(l => onToggle(l))}
-              className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-0.5 transition-colors"
+              className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-0.5 transition-colors px-1.5 py-0.5 rounded hover:bg-secondary"
             >
               <X size={10} /> Clear
             </button>
           )}
           <button
             onClick={() => setExpanded(p => !p)}
-            className="flex items-center gap-0.5 text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
+            className="flex items-center gap-0.5 text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors px-1.5 py-0.5 rounded hover:bg-primary/5"
           >
             {expanded ? "Less" : "All layers"}
             {expanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
@@ -65,10 +65,10 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
         </div>
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {visibleGroups.map(group => (
           <div key={group.label}>
-            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-1.5">{group.label}</div>
+            <div className={`text-[9px] font-bold uppercase tracking-widest mb-1.5 ${group.color}`}>{group.label}</div>
             <div className="flex flex-wrap gap-1.5">
               {group.keys.map(key => {
                 const cfg = LAYER_CONFIG[key];
@@ -78,17 +78,14 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
                   <button
                     key={key}
                     onClick={() => onToggle(key)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all border ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
                       active
-                        ? "bg-white text-foreground border-primary/40 shadow-sm"
-                        : "bg-secondary/40 text-muted-foreground border-transparent hover:border-border/50 hover:bg-secondary/60"
+                        ? "bg-white text-foreground border-primary/40 shadow-sm ring-1 ring-primary/10"
+                        : "bg-secondary/30 text-muted-foreground border-transparent hover:border-border/50 hover:bg-secondary/60"
                     }`}
                   >
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${active ? '' : 'opacity-40'}`}
-                      style={{ backgroundColor: cfg.color }}
-                    />
-                    <span className="truncate max-w-[120px]">{cfg.label}</span>
+                    <Icon size={11} className={active ? "text-primary" : "text-muted-foreground/50"} />
+                    <span className="truncate max-w-[110px]">{cfg.label}</span>
                   </button>
                 );
               })}
@@ -96,6 +93,24 @@ export default function LayerFilters({ activeLayers, onToggle }: LayerFiltersPro
           </div>
         ))}
       </div>
+
+      {/* Legend when layers active */}
+      {activeLayers.length > 0 && (
+        <div className="mt-3 pt-2.5 border-t border-border/30">
+          <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">Active Legend</div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {activeLayers.map(key => {
+              const cfg = LAYER_CONFIG[key];
+              return (
+                <div key={key} className="flex items-center gap-1.5">
+                  <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: cfg.color }} />
+                  <span className="text-[10px] text-muted-foreground">{cfg.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
