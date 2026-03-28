@@ -61,7 +61,7 @@ function AnimatedFlowPath({
           >
             <motion.div
               className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-white shadow-sm"
-              whileHover={{ y: -2, shadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+              whileHover={{ y: -2 }}
             >
               <step.icon size={16} className={step.color} />
               <span className="text-xs font-medium whitespace-nowrap">
