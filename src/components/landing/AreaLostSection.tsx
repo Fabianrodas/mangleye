@@ -11,7 +11,7 @@ const metrics = [
     desc: "Ecuador lost 27.6% of its mangrove forests between 1970 and 1990 due to shrimp farming and urban expansion.",
     color: "text-destructive",
     glow: "hsl(var(--destructive))",
-    x: "6%", y: "15%",
+    x: "6%", y: "12%",
   },
   {
     icon: Wind,
@@ -21,7 +21,7 @@ const metrics = [
     desc: "Mangrove ecosystems can reduce wave energy by up to 66%, helping buffer coastal flooding.",
     color: "text-geo-blue",
     glow: "hsl(var(--geo-blue))",
-    x: "58%", y: "12%",
+    x: "56%", y: "10%",
   },
   {
     icon: DollarSign,
@@ -31,7 +31,7 @@ const metrics = [
     desc: "Without mangroves, global flood-related damage to property would increase by around 9% annually.",
     color: "text-geo-amber",
     glow: "hsl(var(--geo-amber))",
-    x: "5%", y: "60%",
+    x: "6%", y: "55%",
   },
   {
     icon: Users,
@@ -41,7 +41,7 @@ const metrics = [
     desc: "Without mangroves, up to 28% more people would be exposed to flooding each year.",
     color: "text-geo-green",
     glow: "hsl(var(--geo-green))",
-    x: "55%", y: "62%",
+    x: "56%", y: "55%",
   },
 ];
 
@@ -95,29 +95,31 @@ export default function WhatThisAreaLost() {
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative rounded-2xl overflow-hidden shadow-2xl"
+          className="relative rounded-2xl overflow-hidden shadow-2xl min-h-[500px] md:min-h-[60vh]"
         >
+          {/* Background image — absolute fill */}
           <img
             src="https://images.unsplash.com/photo-1596587048750-e2af27fded49?w=1600&q=80"
             alt="Mangrove estuary system in Guayaquil"
-            className="w-full aspect-[16/9] md:aspect-[21/9] object-cover"
-            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-foreground/10" />
 
-          {/* Floating metrics */}
+          {/* Subtle overlay — low opacity so image stays visible */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/10" />
+
+          {/* Floating metric cards */}
           {metrics.map((m, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
               transition={{ delay: 0.4 + i * 0.2, duration: 0.6, type: "spring" }}
-              className="absolute"
+              className="absolute z-10"
               style={{ left: m.x, top: m.y }}
             >
               <div
-                className="relative p-3 md:p-4 rounded-xl backdrop-blur-md border border-white/15 shadow-xl max-w-[200px]"
-                style={{ background: "rgba(0,0,0,0.55)" }}
+                className="relative p-3 md:p-4 rounded-xl backdrop-blur-md border border-white/15 shadow-xl max-w-[220px]"
+                style={{ background: "rgba(0,0,0,0.48)" }}
               >
                 <div
                   className="absolute -inset-1 rounded-xl opacity-20 blur-md -z-10"
@@ -136,7 +138,8 @@ export default function WhatThisAreaLost() {
             </motion.div>
           ))}
 
-          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+          {/* Bottom caption */}
+          <div className="absolute bottom-5 left-5 right-5 z-10 flex items-center justify-between">
             <p className="text-white/70 text-xs font-medium">
               Mangrove estuary — Guayaquil's natural flood defense
             </p>
