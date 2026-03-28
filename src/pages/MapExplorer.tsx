@@ -34,8 +34,8 @@ export default function MapExplorer() {
             onSelectZone={setSelectedZone}
           />
 
-          {/* Search + Layers */}
-          <div className="absolute top-3 left-3 z-[1000] space-y-2">
+          {/* Search + Layers + Actions */}
+          <div className="absolute top-3 left-3 z-[1000] space-y-2 max-h-[calc(100%-80px)] flex flex-col">
             <div className="glass-panel px-3 py-2 flex items-center gap-2 w-[260px]">
               <Search size={13} className="text-muted-foreground shrink-0" />
               <input
@@ -45,6 +45,45 @@ export default function MapExplorer() {
               />
             </div>
             <LayerFilters activeLayers={activeLayers} onToggle={toggleLayer} />
+
+            {/* Actions panel - collapsible, below layers */}
+            <AnimatePresence>
+              {selectedZone && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-[300px]"
+                >
+                  <button
+                    onClick={() => setActionsOpen(p => !p)}
+                    className="w-full flex items-center justify-between px-3 py-2 bg-white/95 backdrop-blur-lg border border-border/60 rounded-lg shadow-sm hover:bg-secondary/30 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Wrench size={12} className="text-geo-amber" />
+                      <span className="text-xs font-semibold">Actions · {selectedZone.name}</span>
+                    </span>
+                    {actionsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  </button>
+                  <AnimatePresence>
+                    {actionsOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-1 bg-white/95 backdrop-blur-lg border border-border/60 rounded-lg shadow-sm p-3 max-h-[320px] overflow-y-auto">
+                          <ActionsTab zone={selectedZone} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Quick actions */}
