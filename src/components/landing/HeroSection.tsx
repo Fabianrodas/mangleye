@@ -31,16 +31,10 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      {/* Dark gradient overlay */}
-      <motion.div
-        className="absolute inset-0"
-        style={{
-          opacity: overlayOpacity,
-          background: "linear-gradient(to top, hsl(192 18% 8% / 0.95) 0%, hsl(192 18% 8% / 0.7) 35%, hsl(192 18% 8% / 0.3) 65%, transparent 100%)",
-        }}
-      />
-      {/* Extra text-area readability layer */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,8%)/0.5] via-transparent to-transparent" />
+      {/* Dark cinematic overlay — heavier at top for headline readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(192,18%,6%)/0.85] via-[hsl(192,18%,6%)/0.55] to-[hsl(192,18%,6%)/0.9] pointer-events-none" />
+      {/* Left-side fog for text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(192,18%,6%)/0.6] via-[hsl(192,18%,6%)/0.25] to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 w-full pb-12 pt-32 px-6">
