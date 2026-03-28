@@ -6,7 +6,7 @@ import PriorityPanel from "@/components/PriorityPanel";
 import ZoneDetail, { ActionsTab } from "@/components/ZoneDetail";
 import { AnimatePresence, motion } from "framer-motion";
 import { type Zone, type LayerType } from "@/data/zones";
-import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets } from "lucide-react";
+import { Layers, ChevronLeft, ChevronRight, Search, AlertTriangle, TreePine, Droplets, Wrench, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function MapExplorer() {
