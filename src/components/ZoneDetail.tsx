@@ -29,11 +29,12 @@ const ScoreBar = ({ label, value, max }: { label: string; value: number; max: nu
   );
 };
 
-type TabId = "overview" | "risk" | "ecology" | "community";
+type TabId = "overview" | "risk" | "ecology" | "actions" | "community";
 const tabs: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "risk", label: "Risk" },
   { id: "ecology", label: "Ecology" },
+  { id: "actions", label: "Actions" },
   { id: "community", label: "Community" },
 ];
 
