@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { zones } from "@/data/zones";
+import dashboardData from "@/data/dashboard.json";
 import { motion } from "framer-motion";
 import { TrendingUp, Droplets, TreePine, Users, MapPin, AlertTriangle, Zap, Target, ArrowRight, Maximize2, Shield, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
