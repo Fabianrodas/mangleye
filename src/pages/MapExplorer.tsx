@@ -153,23 +153,6 @@ export default function MapExplorer() {
         )}
       </div>
 
-      {/* Actions bottom panel - outside sidebar, over the map */}
-      <AnimatePresence>
-        {selectedZone && (
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute bottom-0 left-0 z-[1002] bg-white border-t border-border/60 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto max-h-[45%]"
-            style={{ right: sidebarOpen ? "380px" : 0 }}
-          >
-            <div className="p-4">
-              <ActionsTab zone={selectedZone} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
