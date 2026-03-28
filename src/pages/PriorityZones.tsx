@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { zones } from "@/data/zones";
+import dashboardData from "@/data/dashboard.json";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MapPin, Droplets, TreePine, AlertTriangle, ArrowRight, Users, Maximize2 } from "lucide-react";
@@ -32,15 +33,15 @@ export default function PriorityZones() {
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-3 mb-8">
           <div className="glass-panel p-4 text-center">
-            <div className="text-xl font-bold font-mono text-destructive">{zones.filter(z => z.floodLevel === "High").length}</div>
+            <div className="text-xl font-bold font-mono text-destructive">{dashboardData.highRiskZones}</div>
             <div className="text-[10px] text-muted-foreground">High-risk zones</div>
           </div>
           <div className="glass-panel p-4 text-center">
-            <div className="text-xl font-bold font-mono text-primary">{Math.round(zones.reduce((s, z) => s + z.priorityScore, 0) / zones.length)}</div>
+            <div className="text-xl font-bold font-mono text-primary">{dashboardData.avgPriorityScore}</div>
             <div className="text-[10px] text-muted-foreground">Avg. priority score</div>
           </div>
           <div className="glass-panel p-4 text-center">
-            <div className="text-xl font-bold font-mono text-geo-amber">~168K</div>
+            <div className="text-xl font-bold font-mono text-geo-amber">~{Math.round(dashboardData.exposedPopulation / 1000)}K</div>
             <div className="text-[10px] text-muted-foreground">Exposed population</div>
           </div>
         </div>
