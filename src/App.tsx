@@ -13,7 +13,7 @@ import FloodReport from "./pages/FloodReport";
 import EcoObservation from "./pages/EcoObservation";
 import TechnicalReport from "./pages/TechnicalReport";
 import Community from "./pages/Community";
-import PriorityZones from "./pages/PriorityZones";
+import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,7 +35,8 @@ const App = () => (
           <Route path="/report/ecological" element={<EcoObservation />} />
           <Route path="/report" element={<TechnicalReport />} />
           <Route path="/community" element={<Community />} />
-          <Route path="/zones" element={<PriorityZones />} />
+          <Route path="/learn" element={<Learn />} />
+          <Route path="/zones" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
